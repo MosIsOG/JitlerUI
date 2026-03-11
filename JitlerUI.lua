@@ -169,6 +169,48 @@ function Library:CreateWindow(cfg)
 
     -- Window state
     local Window = {}
+
+    -- ==================== CONFIG SYSTEM ====================
+    local Flags = {}
+    local cfgSave = cfg.ConfigurationSaving or {}
+    local cfgEnabled = cfgSave.Enabled == true
+    local cfgFolder = cfgSave.FolderName or "JitlerHub"
+    local cfgFile = (cfgSave.FileName or "Config") .. ".json"
+    local cfgPath = cfgFolder .. "/" .. cfgFile
+    local HttpSvc = game:GetService("HttpService")
+    local _saveThread = nil
+
+    local function SaveConfig()
+        if not cfgEnabled then return end
+        if _saveThread then pcall(task.cancel, _saveThread) end
+        _saveThread = task.delay(0.5, function()
+            _saveThread = nil
+            if typeof(writefile) ~= "function" then return end
+            pcall(function()
+                local data = {}
+                for flag, info in pairs(Flags) do data[flag] = info.get() end
+                pcall(makefolder, cfgFolder)
+                writefile(cfgPath, HttpSvc:JSONEncode(data))
+            end)
+        end)
+    end
+
+    local function LoadConfig()
+        if not cfgEnabled then return end
+        if typeof(readfile) ~= "function" or typeof(isfile) ~= "function" then return end
+        pcall(function()
+            if not isfile(cfgPath) then return end
+            local ok, data = pcall(HttpSvc.JSONDecode, HttpSvc, readfile(cfgPath))
+            if not ok or type(data) ~= "table" then return end
+            for flag, val in pairs(data) do
+                if Flags[flag] then pcall(Flags[flag].set, val) end
+            end
+        end)
+    end
+
+    function Window:SaveConfig() SaveConfig() end
+    function Window:LoadConfig() LoadConfig() end
+
     local tabs = {}
     local activeTab = nil
     local minimized = false
@@ -341,9 +383,17 @@ function Library:CreateWindow(cfg)
             overlay.MouseButton1Click:Connect(function()
                 value = not value; toggle.Value = value; updateVis(value)
                 if cfg.Callback then pcall(cfg.Callback, value) end
+                SaveConfig()
             end)
             overlay.MouseEnter:Connect(function() tw(frame, {BackgroundColor3=C.Hover}, 0.1) end)
             overlay.MouseLeave:Connect(function() tw(frame, {BackgroundColor3=C.Surface}, 0.1) end)
+
+            if cfg.Flag then
+                Flags[cfg.Flag] = {
+                    get = function() return value end,
+                    set = function(v) toggle:Set(v == true) end,
+                }
+            end
 
             return toggle
         end
@@ -386,6 +436,7 @@ function Library:CreateWindow(cfg)
                 fill.Size = UDim2.new((v - mn) / math.max(mx - mn, 0.001), 0, 1, 0)
                 valLbl.Text = tostring(v) .. suffix
                 if cfg.Callback then pcall(cfg.Callback, v) end
+                SaveConfig()
             end
 
             function slider:Set(v) updateSlider(v) end
@@ -412,6 +463,13 @@ function Library:CreateWindow(cfg)
 
             frame.MouseEnter:Connect(function() tw(frame, {BackgroundColor3=C.Hover}, 0.1) end)
             frame.MouseLeave:Connect(function() tw(frame, {BackgroundColor3=C.Surface}, 0.1) end)
+
+            if cfg.Flag then
+                Flags[cfg.Flag] = {
+                    get = function() return value end,
+                    set = function(v) slider:Set(tonumber(v) or value) end,
+                }
+            end
 
             return slider
         end
@@ -463,6 +521,7 @@ function Library:CreateWindow(cfg)
             local function setCurrent(val)
                 current = val; dropdown.Value = val; selLbl.Text = val .. " ▼"
                 if cfg.Callback then pcall(cfg.Callback, val) end
+                SaveConfig()
             end
             function dropdown:Set(val) setCurrent(val) end
 
@@ -488,6 +547,13 @@ function Library:CreateWindow(cfg)
                 tw(frame, {Size=UDim2.new(1,0,0,isOpen and openH or closedH)}, 0.2)
                 selLbl.Text = current .. (isOpen and " ▲" or " ▼")
             end)
+
+            if cfg.Flag then
+                Flags[cfg.Flag] = {
+                    get = function() return current end,
+                    set = function(v) dropdown:Set(tostring(v)) end,
+                }
+            end
 
             return dropdown
         end
@@ -548,8 +614,7 @@ function Library:CreateWindow(cfg)
                         currentKey = input.KeyCode.Name
                         keyBtn.Text = "["..currentKey.."]"
                         listening = false
-                        tw(keyBtn, {BackgroundColor3=C.Bg}, 0.1)
-                    end
+                        tw(keyBtn, {BackgroundColor3=C.Bg}, 0.1)                        SaveConfig()                    end
                     return
                 end
                 if not gp and input.KeyCode ~= Enum.KeyCode.Unknown then
@@ -561,6 +626,17 @@ function Library:CreateWindow(cfg)
 
             frame.MouseEnter:Connect(function() tw(frame, {BackgroundColor3=C.Hover}, 0.1) end)
             frame.MouseLeave:Connect(function() tw(frame, {BackgroundColor3=C.Surface}, 0.1) end)
+
+            if cfg.Flag then
+                Flags[cfg.Flag] = {
+                    get = function() return currentKey end,
+                    set = function(v)
+                        if type(v) == "string" and #v > 0 then
+                            currentKey = v; keyBtn.Text = "[" .. v .. "]"
+                        end
+                    end,
+                }
+            end
         end
 
         -- ==================== LABEL ====================
@@ -579,6 +655,9 @@ function Library:CreateWindow(cfg)
 
         return Tab
     end
+
+    -- Auto-load saved config once all elements have been registered
+    if cfgEnabled then task.delay(0.5, LoadConfig) end
 
     return Window
 end
