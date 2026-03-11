@@ -21,7 +21,10 @@ local C = {
     AccentDk = Color3.fromRGB(80, 60, 150),
     Text     = Color3.fromRGB(225, 225, 240),
     Dim      = Color3.fromRGB(120, 120, 150),
-    TogOff   = Color3.fromRGB(44, 42, 62),
+    TogOff   = Color3.fromRGB(160, 45, 45),
+    TogOn    = Color3.fromRGB(100, 70, 190),
+    TogOnH   = Color3.fromRGB(155, 120, 240),
+    TogOffH  = Color3.fromRGB(210, 75, 75),
     Border   = Color3.fromRGB(38, 36, 58),
     SliderBg = Color3.fromRGB(32, 30, 48),
     Green    = Color3.fromRGB(80, 200, 120),
@@ -552,11 +555,18 @@ function Library:CreateWindow(cfg)
             end
 
             local swBg = mk("Frame", {
-                BackgroundColor3 = value and C.Accent or C.TogOff,
+                BackgroundColor3 = Color3.new(1,1,1),
                 Size=UDim2.fromOffset(38,20), Position=UDim2.new(1,-48,0.5,-10),
                 BorderSizePixel=0, Parent=frame,
             })
             rc(swBg, 10)
+            local swGrad = mk("UIGradient", {
+                Color = ColorSequence.new(
+                    value and C.TogOn or C.TogOff,
+                    value and C.TogOnH or C.TogOffH
+                ),
+                Parent = swBg,
+            })
             local circle = mk("Frame", {
                 BackgroundColor3=C.Text, Size=UDim2.fromOffset(16,16),
                 Position = value and UDim2.fromOffset(20,2) or UDim2.fromOffset(2,2),
@@ -565,7 +575,10 @@ function Library:CreateWindow(cfg)
             rc(circle, 8)
 
             local function updateVis(v)
-                tw(swBg, {BackgroundColor3 = v and C.Accent or C.TogOff}, 0.15)
+                swGrad.Color = ColorSequence.new(
+                    v and C.TogOn or C.TogOff,
+                    v and C.TogOnH or C.TogOffH
+                )
                 tw(circle, {Position = v and UDim2.fromOffset(20,2) or UDim2.fromOffset(2,2)}, 0.15)
             end
 
@@ -620,8 +633,9 @@ function Library:CreateWindow(cfg)
             local track = mk("Frame", {BackgroundColor3=C.SliderBg, Size=UDim2.new(1,-20,0,6), Position=UDim2.new(0,10,0,34), BorderSizePixel=0, Parent=frame})
             rc(track, 3)
             local pct = (value - mn) / math.max(mx - mn, 0.001)
-            local fill = mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(pct,0,1,0), BorderSizePixel=0, Parent=track})
+            local fill = mk("Frame", {BackgroundColor3=Color3.new(1,1,1), Size=UDim2.new(pct,0,1,0), BorderSizePixel=0, Parent=track})
             rc(fill, 3)
+            mk("UIGradient", {Color=ColorSequence.new(C.TogOn, C.TogOnH), Parent=fill})
 
             local function updateSlider(v)
                 v = math.clamp(v, mn, mx)
