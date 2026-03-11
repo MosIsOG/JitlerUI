@@ -110,8 +110,32 @@ function Library:CreateWindow(cfg)
     local mainSt = st(main, C.AccentDk); mainSt.Transparency = 0.4
 
     -- Header
+    local icon = cfg.Icon or nil
     local header = mk("Frame", {Name="Header", BackgroundColor3=C.Header, Size=UDim2.new(1,0,0,40), BorderSizePixel=0, Parent=main})
-    mk("TextLabel", {Text="  ⬡ "..name, TextColor3=C.Text, Font=F.Bold, TextSize=15, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-90,1,0), Position=UDim2.fromOffset(6,0), Parent=header})
+
+    if icon and icon ~= "" then
+        -- Logo + title layout
+        local logoImg = mk("ImageLabel", {
+            Image = icon,
+            BackgroundTransparency = 1,
+            Size = UDim2.fromOffset(28, 28),
+            Position = UDim2.new(0, 8, 0.5, -14),
+            ScaleType = Enum.ScaleType.Fit,
+            Parent = header,
+        })
+        mk("TextLabel", {
+            Text = name,
+            TextColor3 = C.Text, Font = F.Bold, TextSize = 15,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, -100, 1, 0),
+            Position = UDim2.fromOffset(42, 0),
+            Parent = header,
+        })
+    else
+        mk("TextLabel", {Text="  ⬡ "..name, TextColor3=C.Text, Font=F.Bold, TextSize=15, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-90,1,0), Position=UDim2.fromOffset(6,0), Parent=header})
+    end
+
     mk("Frame", {BackgroundColor3=C.Border, Size=UDim2.new(1,0,0,1), Position=UDim2.new(0,0,1,-1), BorderSizePixel=0, Parent=header})
 
     local closeBtn = mk("TextButton", {Text="✕", TextColor3=C.Dim, Font=F.Bold, TextSize=15, BackgroundTransparency=1, Size=UDim2.fromOffset(30,30), Position=UDim2.new(1,-36,0,5), AutoButtonColor=false, Parent=header})
