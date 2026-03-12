@@ -11,26 +11,27 @@ local HttpSvc = game:GetService("HttpService")
 
 -- Theme
 local C = {
-    Bg       = Color3.fromRGB(14, 14, 24),
-    Sidebar  = Color3.fromRGB(11, 11, 18),
-    Header   = Color3.fromRGB(18, 16, 28),
-    Surface  = Color3.fromRGB(24, 22, 38),
-    Hover    = Color3.fromRGB(34, 30, 52),
-    Accent   = Color3.fromRGB(130, 100, 210),
-    AccentH  = Color3.fromRGB(155, 125, 235),
-    AccentDk = Color3.fromRGB(80, 60, 150),
-    Text     = Color3.fromRGB(225, 225, 240),
-    Dim      = Color3.fromRGB(120, 120, 150),
-    TogOff   = Color3.fromRGB(160, 45, 45),
-    TogOn    = Color3.fromRGB(100, 70, 190),
-    TogOnH   = Color3.fromRGB(155, 120, 240),
-    TogOffH  = Color3.fromRGB(210, 75, 75),
-    Border   = Color3.fromRGB(38, 36, 58),
-    SliderBg = Color3.fromRGB(32, 30, 48),
-    Green    = Color3.fromRGB(80, 200, 120),
-    Red      = Color3.fromRGB(220, 70, 70),
-    Yellow   = Color3.fromRGB(230, 190, 60),
-    Blue     = Color3.fromRGB(70, 140, 220),
+    Bg       = Color3.fromRGB(12, 12, 22),
+    Sidebar  = Color3.fromRGB(10, 10, 18),
+    Header   = Color3.fromRGB(16, 14, 26),
+    Surface  = Color3.fromRGB(22, 20, 36),
+    Hover    = Color3.fromRGB(32, 28, 50),
+    Accent   = Color3.fromRGB(140, 110, 225),
+    AccentH  = Color3.fromRGB(170, 140, 255),
+    AccentDk = Color3.fromRGB(90, 65, 160),
+    Text     = Color3.fromRGB(232, 232, 248),
+    Dim      = Color3.fromRGB(125, 125, 158),
+    TogOff   = Color3.fromRGB(170, 50, 50),
+    TogOn    = Color3.fromRGB(115, 80, 210),
+    TogOnH   = Color3.fromRGB(165, 130, 255),
+    TogOffH  = Color3.fromRGB(220, 80, 80),
+    Border   = Color3.fromRGB(48, 44, 72),
+    SliderBg = Color3.fromRGB(28, 26, 44),
+    Green    = Color3.fromRGB(80, 215, 130),
+    Red      = Color3.fromRGB(230, 70, 70),
+    Yellow   = Color3.fromRGB(240, 200, 60),
+    Blue     = Color3.fromRGB(70, 150, 230),
+    WidgetBorder = Color3.fromRGB(52, 48, 78),
 }
 local F = {
     Bold = Enum.Font.GothamBold,
@@ -194,13 +195,13 @@ function Library:CreateWindow(cfg)
     end
 
     -- Main frame (hidden during loading)
-    local main = mk("Frame", {Name="Main", BackgroundColor3=C.Bg, Size=UDim2.fromOffset(580,400), Position=UDim2.new(0.5,-290,0.5,-200), BorderSizePixel=0, ClipsDescendants=true, Visible=not hasLoading, Parent=sg})
-    rc(main, 10)
-    local mainSt = st(main, C.AccentDk); mainSt.Transparency = 0.4
+    local main = mk("Frame", {Name="Main", BackgroundColor3=C.Bg, Size=UDim2.fromOffset(720,500), Position=UDim2.new(0.5,-360,0.5,-250), BorderSizePixel=0, ClipsDescendants=true, Visible=not hasLoading, Parent=sg})
+    rc(main, 12)
+    local mainSt = st(main, C.AccentDk, 1.5); mainSt.Transparency = 0.25
 
     -- Header
     local headerIcon = cfg.Icon or nil
-    local header = mk("Frame", {Name="Header", BackgroundColor3=C.Header, Size=UDim2.new(1,0,0,40), BorderSizePixel=0, Parent=main})
+    local header = mk("Frame", {Name="Header", BackgroundColor3=C.Header, Size=UDim2.new(1,0,0,46), BorderSizePixel=0, Parent=main})
 
     if headerIcon and headerIcon ~= "" then
         mk("ImageLabel", {
@@ -218,8 +219,8 @@ function Library:CreateWindow(cfg)
 
     mk("Frame", {BackgroundColor3=C.Border, Size=UDim2.new(1,0,0,1), Position=UDim2.new(0,0,1,-1), BorderSizePixel=0, Parent=header})
 
-    local closeBtn = mk("TextButton", {Text="\226\156\149", TextColor3=C.Dim, Font=F.Bold, TextSize=15, BackgroundTransparency=1, Size=UDim2.fromOffset(30,30), Position=UDim2.new(1,-36,0,5), AutoButtonColor=false, Parent=header})
-    local minBtn = mk("TextButton", {Text="\226\148\128", TextColor3=C.Dim, Font=F.Bold, TextSize=15, BackgroundTransparency=1, Size=UDim2.fromOffset(30,30), Position=UDim2.new(1,-64,0,5), AutoButtonColor=false, Parent=header})
+    local closeBtn = mk("TextButton", {Text="\226\156\149", TextColor3=C.Dim, Font=F.Bold, TextSize=15, BackgroundTransparency=1, Size=UDim2.fromOffset(30,30), Position=UDim2.new(1,-36,0,8), AutoButtonColor=false, Parent=header})
+    local minBtn = mk("TextButton", {Text="\226\148\128", TextColor3=C.Dim, Font=F.Bold, TextSize=15, BackgroundTransparency=1, Size=UDim2.fromOffset(30,30), Position=UDim2.new(1,-64,0,8), AutoButtonColor=false, Parent=header})
 
     for _, b in ipairs({closeBtn, minBtn}) do
         b.MouseEnter:Connect(function() tw(b, {TextColor3=C.Text}, 0.1) end)
@@ -227,10 +228,10 @@ function Library:CreateWindow(cfg)
     end
 
     -- Body (sidebar + content)
-    local body = mk("Frame", {Name="Body", BackgroundTransparency=1, Size=UDim2.new(1,0,1,-40), Position=UDim2.fromOffset(0,40), Parent=main})
+    local body = mk("Frame", {Name="Body", BackgroundTransparency=1, Size=UDim2.new(1,0,1,-46), Position=UDim2.fromOffset(0,46), Parent=main})
 
     -- Sidebar
-    local sidebar = mk("Frame", {Name="Sidebar", BackgroundColor3=C.Sidebar, Size=UDim2.new(0,140,1,0), BorderSizePixel=0, Parent=body})
+    local sidebar = mk("Frame", {Name="Sidebar", BackgroundColor3=C.Sidebar, Size=UDim2.new(0,160,1,0), BorderSizePixel=0, Parent=body})
     mk("Frame", {BackgroundColor3=C.Border, Size=UDim2.new(0,1,1,0), Position=UDim2.new(1,-1,0,0), BorderSizePixel=0, Parent=sidebar})
 
     local tabScroll = mk("ScrollingFrame", {BackgroundTransparency=1, Size=UDim2.new(1,-8,1,-8), Position=UDim2.fromOffset(4,4), ScrollBarThickness=0, CanvasSize=UDim2.new(0,0,0,0), BorderSizePixel=0, Parent=sidebar})
@@ -240,7 +241,7 @@ function Library:CreateWindow(cfg)
     end)
 
     -- Content area
-    local contentArea = mk("Frame", {Name="Content", BackgroundTransparency=1, Size=UDim2.new(1,-140,1,0), Position=UDim2.fromOffset(140,0), Parent=body})
+    local contentArea = mk("Frame", {Name="Content", BackgroundTransparency=1, Size=UDim2.new(1,-160,1,0), Position=UDim2.fromOffset(160,0), Parent=body})
 
     -- Dialog overlay
     local dialogOverlay = mk("Frame", {Name="DialogOverlay", BackgroundColor3=Color3.new(0,0,0), BackgroundTransparency=0.5, Size=UDim2.new(1,0,1,0), Visible=false, ZIndex=50, Parent=main})
@@ -396,9 +397,9 @@ function Library:CreateWindow(cfg)
     minBtn.MouseButton1Click:Connect(function()
         minimized = not minimized
         if minimized then
-            tw(main, {Size = UDim2.fromOffset(580, 40)}, 0.2); body.Visible = false
+            tw(main, {Size = UDim2.fromOffset(720, 46)}, 0.2); body.Visible = false
         else
-            body.Visible = true; tw(main, {Size = UDim2.fromOffset(580, 400)}, 0.2)
+            body.Visible = true; tw(main, {Size = UDim2.fromOffset(720, 500)}, 0.2)
         end
     end)
 
@@ -453,7 +454,7 @@ function Library:CreateWindow(cfg)
             TextXAlignment = Enum.TextXAlignment.Left,
             BackgroundColor3 = isFirst and C.Accent or C.Sidebar,
             BackgroundTransparency = isFirst and 0.75 or 1,
-            Size = UDim2.new(1, 0, 0, 32),
+            Size = UDim2.new(1, 0, 0, 36),
             BorderSizePixel = 0, AutoButtonColor = false,
             LayoutOrder = #tabs,
             Parent = tabScroll,
@@ -524,10 +525,13 @@ function Library:CreateWindow(cfg)
 
         -- ==================== SECTION ====================
         function target:CreateSection(sectionName)
-            local sec = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,26), LayoutOrder=wNextOrder(), Parent=wContent})
-            mk("TextLabel", {
-                Text="\226\148\128\226\148\128 "..sectionName.." \226\148\128\226\148\128", TextColor3=C.Dim, Font=F.Semi, TextSize=12,
-                BackgroundTransparency=1, Size=UDim2.new(1,0,1,0), Parent=sec,
+            local sec = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,30), LayoutOrder=wNextOrder(), Parent=wContent})
+            local secLine = mk("Frame", {BackgroundColor3=C.Border, Size=UDim2.new(1,0,0,1), Position=UDim2.new(0,0,0.5,0), BorderSizePixel=0, Parent=sec})
+            local secLabel = mk("TextLabel", {
+                Text="  "..sectionName.."  ", TextColor3=C.Accent, Font=F.Semi, TextSize=12,
+                BackgroundColor3=C.Bg, BackgroundTransparency=0,
+                AutomaticSize=Enum.AutomaticSize.X, Size=UDim2.new(0,0,1,0),
+                Position=UDim2.fromOffset(10,0), Parent=sec,
             })
         end
 
@@ -541,9 +545,7 @@ function Library:CreateWindow(cfg)
 
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
-
-            mk("TextLabel", {
-                Text=tcfg.Name or "Toggle", TextColor3=C.Text, Font=F.Reg, TextSize=13,
+            st(frame, C.WidgetBorder)
                 TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1,
                 Size=UDim2.new(1,-60,0,20), Position=UDim2.fromOffset(10, hasDesc and 4 or 7), Parent=frame,
             })
@@ -620,9 +622,7 @@ function Library:CreateWindow(cfg)
 
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,50), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
-
-            mk("TextLabel", {
-                Text=scfg.Name or "Slider", TextColor3=C.Text, Font=F.Reg, TextSize=13,
+            st(frame, C.WidgetBorder)
                 TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1,
                 Size=UDim2.new(0.6,0,0,20), Position=UDim2.fromOffset(10,4), Parent=frame,
             })
@@ -694,6 +694,7 @@ function Library:CreateWindow(cfg)
                 AutoButtonColor=false, LayoutOrder=wNextOrder(), Parent=wContent,
             })
             rc(btn2, 6)
+            st(btn2, C.WidgetBorder)
             btn2.MouseButton1Click:Connect(function()
                 tw(btn2, {BackgroundColor3=C.Accent}, 0.08)
                 task.delay(0.12, function() tw(btn2, {BackgroundColor3=C.Surface}, 0.15) end)
@@ -713,6 +714,7 @@ function Library:CreateWindow(cfg)
 
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
+            st(frame, C.WidgetBorder)
 
             mk("TextLabel", {
                 Text=dcfg.Name or "Dropdown", TextColor3=C.Text, Font=F.Reg, TextSize=13,
@@ -774,6 +776,7 @@ function Library:CreateWindow(cfg)
         function target:CreateInput(icfg)
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,34), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
+            st(frame, C.WidgetBorder)
             mk("TextLabel", {
                 Text=icfg.Name or "Input", TextColor3=C.Text, Font=F.Reg, TextSize=13,
                 TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1,
@@ -802,6 +805,7 @@ function Library:CreateWindow(cfg)
 
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,34), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
+            st(frame, C.WidgetBorder)
             mk("TextLabel", {
                 Text=kcfg.Name or "Keybind", TextColor3=C.Text, Font=F.Reg, TextSize=13,
                 TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1,
@@ -873,6 +877,7 @@ function Library:CreateWindow(cfg)
             local para = {}
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,60), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
+            st(frame, C.WidgetBorder)
             local accent = mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,3,1,-10), Position=UDim2.fromOffset(5,5), BorderSizePixel=0, Parent=frame})
             rc(accent, 2)
             local titleLbl = mk("TextLabel", {
@@ -914,6 +919,7 @@ function Library:CreateWindow(cfg)
 
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
+            st(frame, C.WidgetBorder)
 
             mk("TextLabel", {
                 Text=ccfg.Name or "Color", TextColor3=C.Text, Font=F.Reg, TextSize=13,
@@ -1051,10 +1057,13 @@ function Library:CreateWindow(cfg)
                 tabData.content = subContainer
 
                 subTabBar = mk("Frame", {
-                    BackgroundTransparency = 1,
-                    Size = UDim2.new(1, 0, 0, 28),
+                    BackgroundColor3 = C.Header,
+                    Size = UDim2.new(1, 0, 0, 32),
+                    BorderSizePixel = 0,
                     Parent = subContainer,
                 })
+                rc(subTabBar, 6)
+                st(subTabBar, C.Border)
                 mk("UIListLayout", {
                     FillDirection = Enum.FillDirection.Horizontal,
                     SortOrder = Enum.SortOrder.LayoutOrder,
@@ -1095,8 +1104,8 @@ function Library:CreateWindow(cfg)
             local subContent = mk("ScrollingFrame", {
                 Name = subTabName,
                 BackgroundTransparency = 1,
-                Size = UDim2.new(1, 0, 1, -30),
-                Position = UDim2.fromOffset(0, 30),
+                Size = UDim2.new(1, 0, 1, -38),
+                Position = UDim2.fromOffset(0, 36),
                 ScrollBarThickness = 3,
                 ScrollBarImageColor3 = C.AccentDk,
                 CanvasSize = UDim2.new(0, 0, 0, 0),
