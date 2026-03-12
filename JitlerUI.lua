@@ -335,7 +335,7 @@ function Library:CreateWindow(cfg)
     end
 
     -- Hex tab positioning: 50% out left, 40% inside bar, 10% out right
-    local HEX_IMG = "rbxassetid://14482391365"
+    local HEX_IMG = "rbxassetid://14482391301"
     local HEX_SIZE = 42
     local HEX_START_Y = 52
     local HEX_SPACING = 52
