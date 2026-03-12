@@ -546,6 +546,9 @@ function Library:CreateWindow(cfg)
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
             st(frame, C.WidgetBorder)
+
+            mk("TextLabel", {
+                Text=tcfg.Name or "Toggle", TextColor3=C.Text, Font=F.Reg, TextSize=13,
                 TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1,
                 Size=UDim2.new(1,-60,0,20), Position=UDim2.fromOffset(10, hasDesc and 4 or 7), Parent=frame,
             })
@@ -623,6 +626,9 @@ function Library:CreateWindow(cfg)
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,50), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
             st(frame, C.WidgetBorder)
+
+            mk("TextLabel", {
+                Text=scfg.Name or "Slider", TextColor3=C.Text, Font=F.Reg, TextSize=13,
                 TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1,
                 Size=UDim2.new(0.6,0,0,20), Position=UDim2.fromOffset(10,4), Parent=frame,
             })
