@@ -518,11 +518,13 @@ function Library:CreateWindow(cfg)
             if activeTab ~= tabName then tw(btn, {BackgroundTransparency=1, BackgroundColor3=C.Sidebar}, 0.1) end
         end)
 
-        local function nextOrder() order = order + 1; return order end
+        local function attachWidgets(target, wContent)
+            local wOrder = 0
+            local function wNextOrder() wOrder = wOrder + 1; return wOrder end
 
         -- ==================== SECTION ====================
-        function Tab:CreateSection(sectionName)
-            local sec = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,26), LayoutOrder=nextOrder(), Parent=content})
+        function target:CreateSection(sectionName)
+            local sec = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,26), LayoutOrder=wNextOrder(), Parent=wContent})
             mk("TextLabel", {
                 Text="\226\148\128\226\148\128 "..sectionName.." \226\148\128\226\148\128", TextColor3=C.Dim, Font=F.Semi, TextSize=12,
                 BackgroundTransparency=1, Size=UDim2.new(1,0,1,0), Parent=sec,
@@ -530,14 +532,14 @@ function Library:CreateWindow(cfg)
         end
 
         -- ==================== TOGGLE ====================
-        function Tab:CreateToggle(tcfg)
+        function target:CreateToggle(tcfg)
             local value = tcfg.CurrentValue or false
             local toggle = {Value = value}
 
             local hasDesc = tcfg.Description and tcfg.Description ~= ""
             local frameH = hasDesc and 48 or 34
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=nextOrder(), Parent=content})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
 
             mk("TextLabel", {
@@ -608,7 +610,7 @@ function Library:CreateWindow(cfg)
         end
 
         -- ==================== SLIDER ====================
-        function Tab:CreateSlider(scfg)
+        function target:CreateSlider(scfg)
             local range = scfg.Range or {0, 100}
             local mn, mx = range[1], range[2]
             local inc = scfg.Increment or 1
@@ -616,7 +618,7 @@ function Library:CreateWindow(cfg)
             local value = math.clamp(scfg.CurrentValue or mn, mn, mx)
             local slider = {Value = value}
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,50), BorderSizePixel=0, LayoutOrder=nextOrder(), Parent=content})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,50), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
 
             mk("TextLabel", {
@@ -685,11 +687,11 @@ function Library:CreateWindow(cfg)
         end
 
         -- ==================== BUTTON ====================
-        function Tab:CreateButton(bcfg)
+        function target:CreateButton(bcfg)
             local btn2 = mk("TextButton", {
                 Text=bcfg.Name or "Button", TextColor3=C.Text, Font=F.Semi, TextSize=13,
                 BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,34), BorderSizePixel=0,
-                AutoButtonColor=false, LayoutOrder=nextOrder(), Parent=content,
+                AutoButtonColor=false, LayoutOrder=wNextOrder(), Parent=wContent,
             })
             rc(btn2, 6)
             btn2.MouseButton1Click:Connect(function()
@@ -702,14 +704,14 @@ function Library:CreateWindow(cfg)
         end
 
         -- ==================== DROPDOWN ====================
-        function Tab:CreateDropdown(dcfg)
+        function target:CreateDropdown(dcfg)
             local options = dcfg.Options or {}
             local current = dcfg.CurrentOption or (options[1] or "")
             local dropdown = {Value = current}
             local isOpen = false
             local closedH, optH = 34, 28
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=nextOrder(), Parent=content})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
 
             mk("TextLabel", {
@@ -769,8 +771,8 @@ function Library:CreateWindow(cfg)
         end
 
         -- ==================== INPUT ====================
-        function Tab:CreateInput(icfg)
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,34), BorderSizePixel=0, LayoutOrder=nextOrder(), Parent=content})
+        function target:CreateInput(icfg)
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,34), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
             mk("TextLabel", {
                 Text=icfg.Name or "Input", TextColor3=C.Text, Font=F.Reg, TextSize=13,
@@ -794,11 +796,11 @@ function Library:CreateWindow(cfg)
         end
 
         -- ==================== KEYBIND ====================
-        function Tab:CreateKeybind(kcfg)
+        function target:CreateKeybind(kcfg)
             local currentKey = kcfg.CurrentKeybind or "F"
             local listening = false
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,34), BorderSizePixel=0, LayoutOrder=nextOrder(), Parent=content})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,34), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
             mk("TextLabel", {
                 Text=kcfg.Name or "Keybind", TextColor3=C.Text, Font=F.Reg, TextSize=13,
@@ -852,13 +854,13 @@ function Library:CreateWindow(cfg)
         end
 
         -- ==================== LABEL ====================
-        function Tab:CreateLabel(text)
+        function target:CreateLabel(text)
             local label = {}
             local lbl = mk("TextLabel", {
                 Text=text or "", TextColor3=C.Dim, Font=F.Reg, TextSize=12,
                 TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true,
                 BackgroundTransparency=1, Size=UDim2.new(1,-10,0,20),
-                LayoutOrder=nextOrder(), Parent=content,
+                LayoutOrder=wNextOrder(), Parent=wContent,
             })
             pad(lbl, 0, 0, 0, 10)
             function label:Set(newText) lbl.Text = newText end
@@ -866,10 +868,10 @@ function Library:CreateWindow(cfg)
         end
 
         -- ==================== PARAGRAPH ====================
-        function Tab:CreateParagraph(pcfg2)
+        function target:CreateParagraph(pcfg2)
             pcfg2 = pcfg2 or {}
             local para = {}
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,60), BorderSizePixel=0, LayoutOrder=nextOrder(), Parent=content})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,60), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
             local accent = mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,3,1,-10), Position=UDim2.fromOffset(5,5), BorderSizePixel=0, Parent=frame})
             rc(accent, 2)
@@ -901,7 +903,7 @@ function Library:CreateWindow(cfg)
         end
 
         -- ==================== COLOR PICKER ====================
-        function Tab:CreateColorPicker(ccfg)
+        function target:CreateColorPicker(ccfg)
             ccfg = ccfg or {}
             local value = ccfg.Default or Color3.fromRGB(130, 100, 210)
             local picker = {Value = value}
@@ -910,7 +912,7 @@ function Library:CreateWindow(cfg)
             local closedH = 34
             local openH = 130
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=nextOrder(), Parent=content})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, 6)
 
             mk("TextLabel", {
@@ -1022,6 +1024,126 @@ function Library:CreateWindow(cfg)
             frame.MouseLeave:Connect(function() tw(frame, {BackgroundColor3=C.Surface}, 0.1) end)
 
             return picker
+        end
+        end -- end attachWidgets
+
+        attachWidgets(Tab, content)
+
+        -- ==================== SUB-TABS ====================
+        local subTabs = {}
+        local activeSubTab = nil
+        local subTabBar = nil
+
+        function Tab:CreateSubTab(subTabName)
+            local SubTab = {}
+            local isFirstSub = #subTabs == 0
+
+            if isFirstSub then
+                content.Visible = false
+                local subContainer = mk("Frame", {
+                    Name = tabName .. "_SubContainer",
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, -16, 1, -8),
+                    Position = UDim2.fromOffset(8, 4),
+                    Visible = (activeTab == tabName),
+                    Parent = contentArea,
+                })
+                tabData.content = subContainer
+
+                subTabBar = mk("Frame", {
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 28),
+                    Parent = subContainer,
+                })
+                mk("UIListLayout", {
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    Padding = UDim.new(0, 0),
+                    Parent = subTabBar,
+                })
+                mk("Frame", {
+                    BackgroundColor3 = C.Border,
+                    Size = UDim2.new(1, 0, 0, 1),
+                    Position = UDim2.new(0, 0, 1, -1),
+                    BorderSizePixel = 0,
+                    Parent = subTabBar,
+                })
+            end
+
+            local subBtn = mk("TextButton", {
+                Text = subTabName,
+                TextColor3 = isFirstSub and C.Text or C.Dim,
+                Font = F.Semi, TextSize = 12,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(0, 0, 1, -2),
+                AutomaticSize = Enum.AutomaticSize.X,
+                AutoButtonColor = false,
+                LayoutOrder = #subTabs,
+                Parent = subTabBar,
+            })
+            pad(subBtn, 0, 12, 0, 12)
+
+            local subIndicator = mk("Frame", {
+                BackgroundColor3 = C.Accent,
+                Size = UDim2.new(1, 0, 0, 2),
+                Position = UDim2.new(0, 0, 1, -2),
+                BorderSizePixel = 0,
+                BackgroundTransparency = isFirstSub and 0 or 1,
+                Parent = subBtn,
+            })
+
+            local subContent = mk("ScrollingFrame", {
+                Name = subTabName,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 1, -30),
+                Position = UDim2.fromOffset(0, 30),
+                ScrollBarThickness = 3,
+                ScrollBarImageColor3 = C.AccentDk,
+                CanvasSize = UDim2.new(0, 0, 0, 0),
+                BorderSizePixel = 0,
+                Visible = isFirstSub,
+                Parent = tabData.content,
+            })
+            local subLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,4), Parent=subContent})
+            subLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                subContent.CanvasSize = UDim2.new(0, 0, 0, subLayout.AbsoluteContentSize.Y + 12)
+            end)
+
+            local subTabData = {
+                name = subTabName,
+                button = subBtn,
+                content = subContent,
+                indicator = subIndicator,
+            }
+            table.insert(subTabs, subTabData)
+
+            if isFirstSub then activeSubTab = subTabName end
+
+            local function selectSubTab(name)
+                for _, st in ipairs(subTabs) do
+                    if st.name == name then
+                        st.content.Visible = true
+                        st.button.TextColor3 = C.Text
+                        tw(st.indicator, {BackgroundTransparency = 0}, 0.15)
+                        activeSubTab = name
+                    else
+                        st.content.Visible = false
+                        st.button.TextColor3 = C.Dim
+                        tw(st.indicator, {BackgroundTransparency = 1}, 0.15)
+                    end
+                end
+            end
+
+            subBtn.MouseButton1Click:Connect(function() selectSubTab(subTabName) end)
+            subBtn.MouseEnter:Connect(function()
+                if activeSubTab ~= subTabName then tw(subBtn, {TextColor3 = C.AccentH}, 0.1) end
+            end)
+            subBtn.MouseLeave:Connect(function()
+                if activeSubTab ~= subTabName then tw(subBtn, {TextColor3 = C.Dim}, 0.1) end
+            end)
+
+            attachWidgets(SubTab, subContent)
+            return SubTab
         end
 
         return Tab
