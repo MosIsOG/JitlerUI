@@ -337,12 +337,12 @@ function Library:CreateWindow(cfg)
 
     -- Hex tab positioning: 50% out left, 40% inside rail, 10% out right
     local HEX_IMG = "rbxassetid://14482391301"
-    local HEX_W = math.floor(SIDEBAR_W / 0.6)
+    local HEX_W = math.floor((SIDEBAR_W / 0.4) * 0.7)
     local HEX_X = -math.floor(0.5 * HEX_W)
-    local HEX_ICON = math.floor(HEX_W * 0.35)
+    local HEX_ICON = math.floor(HEX_W * 0.38)
     local HEX_START_Y = 10
-    local HEX_SPACING = HEX_W
-    local HEX_GLOW_PAD = 14
+    local HEX_SPACING = math.floor(HEX_W * 0.82)
+    local HEX_GLOW_PAD = 12
     local function getHexPos(idx)
         local zigzag = (idx % 2 == 0) and 5 or -3
         local x = HEX_X + zigzag
