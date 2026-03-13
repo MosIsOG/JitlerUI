@@ -1,5 +1,5 @@
--- JitlerUI.lua v6.0 — Premium Exploit Hub UI Library
--- Black-first scheme, dynamic hex rails, dense 4/6/8 spacing, 2-digit float formatting
+-- JitlerUI.lua v6.1 — Premium Exploit Hub UI Library
+-- Adaptive hex spacing, premium typography overhaul, dense 4/6/8 spacing
 
 local Library = {}
 local TweenService = game:GetService("TweenService")
@@ -113,9 +113,9 @@ function Library:Notify(cfg)
     local nf = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,0), BorderSizePixel=0, ClipsDescendants=true, Parent=_notifContainer})
     rc(nf, CORNER.Widget); local nfSt = st(nf, barColor, 1); nfSt.Transparency = 0.4
     local bar = mk("Frame", {BackgroundColor3=barColor, Size=UDim2.new(0,3,1,-10), Position=UDim2.fromOffset(4,5), BorderSizePixel=0, Parent=nf}); rc(bar,2)
-    mk("TextLabel", {Text=title, TextColor3=barColor, Font=F.Bold, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-20,0,16), Position=UDim2.fromOffset(14,5), Parent=nf})
-    mk("TextLabel", {Text=content, TextColor3=C.Text, Font=F.Reg, TextSize=11, TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, BackgroundTransparency=1, Size=UDim2.new(1,-20,0,24), Position=UDim2.fromOffset(14,22), Parent=nf})
-    tw(nf, {Size=UDim2.new(1,0,0,52)}, 0.2)
+    mk("TextLabel", {Text=title, TextColor3=barColor, Font=F.Bold, TextSize=15, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-20,0,18), Position=UDim2.fromOffset(14,5), Parent=nf})
+    mk("TextLabel", {Text=content, TextColor3=C.Text, Font=F.Reg, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, BackgroundTransparency=1, Size=UDim2.new(1,-20,0,28), Position=UDim2.fromOffset(14,24), Parent=nf})
+    tw(nf, {Size=UDim2.new(1,0,0,58)}, 0.2)
     task.delay(dur, function()
         if not nf or not nf.Parent then return end
         tw(nf, {Size=UDim2.new(1,0,0,0)}, 0.25)
@@ -153,11 +153,11 @@ function Library:CreateWindow(cfg)
             mk("ImageLabel", {Image=loadIcon, BackgroundTransparency=1, Size=UDim2.fromOffset(80,80), Position=UDim2.new(0.5,-40,0,0), ScaleType=Enum.ScaleType.Fit, ZIndex=102, Parent=center})
         end
         local titleY = (loadIcon and loadIcon ~= "") and 88 or 8
-        mk("TextLabel", {Text=cfg.LoadingTitle or "Loading", TextColor3=C.Text, Font=F.Bold, TextSize=15, BackgroundTransparency=1, Size=UDim2.new(1,0,0,20), Position=UDim2.fromOffset(0,titleY), TextXAlignment=Enum.TextXAlignment.Center, ZIndex=102, Parent=center})
-        mk("TextLabel", {Text=cfg.LoadingSubtitle or "", TextColor3=C.Dim, Font=F.Reg, TextSize=11, BackgroundTransparency=1, Size=UDim2.new(1,0,0,16), Position=UDim2.fromOffset(0,titleY+20), TextXAlignment=Enum.TextXAlignment.Center, ZIndex=102, Parent=center})
+        mk("TextLabel", {Text=cfg.LoadingTitle or "Loading", TextColor3=C.Text, Font=F.Bold, TextSize=22, BackgroundTransparency=1, Size=UDim2.new(1,0,0,24), Position=UDim2.fromOffset(0,titleY), TextXAlignment=Enum.TextXAlignment.Center, ZIndex=102, Parent=center})
+        mk("TextLabel", {Text=cfg.LoadingSubtitle or "", TextColor3=C.Dim, Font=F.Reg, TextSize=12, BackgroundTransparency=1, Size=UDim2.new(1,0,0,16), Position=UDim2.fromOffset(0,titleY+24), TextXAlignment=Enum.TextXAlignment.Center, ZIndex=102, Parent=center})
         local loadBar = mk("Frame", {BackgroundColor3=C.SliderBg, Size=UDim2.new(0.8,0,0,3), Position=UDim2.new(0.1,0,0,titleY+44), BorderSizePixel=0, ZIndex=102, Parent=center}); rc(loadBar,2)
         loadFill = mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,0,1,0), BorderSizePixel=0, ZIndex=103, Parent=loadBar}); rc(loadFill,2)
-        loadPct = mk("TextLabel", {Text="0%", TextColor3=C.Dim, Font=F.Reg, TextSize=9, BackgroundTransparency=1, Size=UDim2.new(1,0,0,14), Position=UDim2.new(0,0,0,titleY+50), TextXAlignment=Enum.TextXAlignment.Center, ZIndex=102, Parent=center})
+        loadPct = mk("TextLabel", {Text="0%", TextColor3=C.Dim, Font=F.Reg, TextSize=12, BackgroundTransparency=1, Size=UDim2.new(1,0,0,14), Position=UDim2.new(0,0,0,titleY+50), TextXAlignment=Enum.TextXAlignment.Center, ZIndex=102, Parent=center})
     end
 
     -- ==================== MAIN FRAME ====================
@@ -192,9 +192,9 @@ function Library:CreateWindow(cfg)
     local headerIcon = cfg.Icon
     if headerIcon and headerIcon ~= "" then
         mk("ImageLabel", {Image=headerIcon, BackgroundTransparency=1, Size=UDim2.fromOffset(28,28), Position=UDim2.new(0,8,0.5,-14), ScaleType=Enum.ScaleType.Fit, Parent=header})
-        mk("TextLabel", {Text=name, TextColor3=C.Text, Font=F.Bold, TextSize=15, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-110,1,0), Position=UDim2.fromOffset(42,0), Parent=header})
+        mk("TextLabel", {Text=name, TextColor3=C.Text, Font=F.Bold, TextSize=22, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-110,1,0), Position=UDim2.fromOffset(42,0), Parent=header})
     else
-        mk("TextLabel", {Text=name, TextColor3=C.Text, Font=F.Bold, TextSize=15, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-110,1,0), Position=UDim2.fromOffset(12,0), Parent=header})
+        mk("TextLabel", {Text=name, TextColor3=C.Text, Font=F.Bold, TextSize=22, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-110,1,0), Position=UDim2.fromOffset(12,0), Parent=header})
     end
     -- Header bottom shadow line
     mk("Frame", {BackgroundColor3=C.Shadow, BackgroundTransparency=0.5, Size=UDim2.new(1,0,0,2), Position=UDim2.new(0,0,1,-1), BorderSizePixel=0, Parent=header})
@@ -270,15 +270,15 @@ function Library:CreateWindow(cfg)
         for _,c in ipairs(dialogOverlay:GetChildren()) do c:Destroy() end
         dialogOverlay.Visible = true
         local panel = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.fromOffset(300,0), Position=UDim2.new(0.5,-150,0.5,-65), BorderSizePixel=0, ClipsDescendants=true, ZIndex=51, Parent=dialogOverlay}); rc(panel,CORNER.Main); st(panel,C.AccentDk)
-        mk("TextLabel", {Text=dc.Title or "Confirm", TextColor3=C.Text, Font=F.Bold, TextSize=15, BackgroundTransparency=1, Size=UDim2.new(1,-16,0,26), Position=UDim2.fromOffset(8,8), TextXAlignment=Enum.TextXAlignment.Left, ZIndex=52, Parent=panel})
-        mk("TextLabel", {Text=dc.Content or "", TextColor3=C.Dim, Font=F.Reg, TextSize=11, TextWrapped=true, BackgroundTransparency=1, Size=UDim2.new(1,-16,0,36), Position=UDim2.fromOffset(8,34), TextXAlignment=Enum.TextXAlignment.Left, TextYAlignment=Enum.TextYAlignment.Top, ZIndex=52, Parent=panel})
+        mk("TextLabel", {Text=dc.Title or "Confirm", TextColor3=C.Text, Font=F.Bold, TextSize=17, BackgroundTransparency=1, Size=UDim2.new(1,-16,0,26), Position=UDim2.fromOffset(8,8), TextXAlignment=Enum.TextXAlignment.Left, ZIndex=52, Parent=panel})
+        mk("TextLabel", {Text=dc.Content or "", TextColor3=C.Dim, Font=F.Reg, TextSize=12, TextWrapped=true, BackgroundTransparency=1, Size=UDim2.new(1,-16,0,36), Position=UDim2.fromOffset(8,34), TextXAlignment=Enum.TextXAlignment.Left, TextYAlignment=Enum.TextYAlignment.Top, ZIndex=52, Parent=panel})
         local btnRow = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,-12,0,28), Position=UDim2.fromOffset(6,78), ZIndex=52, Parent=panel})
         mk("UIListLayout", {FillDirection=Enum.FillDirection.Horizontal, SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,5), HorizontalAlignment=Enum.HorizontalAlignment.Right, Parent=btnRow})
 
         local function closeDialog() tw(panel, {Size=UDim2.fromOffset(300,0)}, 0.15); task.delay(0.15, function() dialogOverlay.Visible=false end) end
         for i, bc in ipairs(dc.Buttons or {}) do
             local ia = i==1
-            local db = mk("TextButton", {Text=bc.Name or "OK", TextColor3=ia and C.Text or C.Dim, Font=F.Semi, TextSize=11, BackgroundColor3=ia and C.Accent or C.Bg, Size=UDim2.fromOffset(76,26), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=i, ZIndex=53, Parent=btnRow}); rc(db,CORNER.Small)
+            local db = mk("TextButton", {Text=bc.Name or "OK", TextColor3=ia and C.Text or C.Dim, Font=F.Semi, TextSize=13, BackgroundColor3=ia and C.Accent or C.Bg, Size=UDim2.fromOffset(76,26), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=i, ZIndex=53, Parent=btnRow}); rc(db,CORNER.Small)
             db.MouseButton1Click:Connect(function() closeDialog(); if bc.Callback then pcall(bc.Callback) end end)
             db.MouseEnter:Connect(function() tw(db, {BackgroundColor3=ia and C.AccentH or C.Hover}, 0.08) end)
             db.MouseLeave:Connect(function() tw(db, {BackgroundColor3=ia and C.Accent or C.Bg}, 0.08) end)
@@ -335,19 +335,30 @@ function Library:CreateWindow(cfg)
         end
     end
 
-    -- Hex tab positioning: 50% out left, 40% inside rail, 10% out right
+    -- Hex tab positioning: adaptive vertical spacing
     local HEX_IMG = "rbxassetid://14482391301"
-    local HEX_W = math.floor((SIDEBAR_W / 0.4) * 0.7)
+    local HEX_W = math.floor(SIDEBAR_W / 0.4)
     local HEX_X = -math.floor(0.5 * HEX_W)
-    local HEX_ICON = math.floor(HEX_W * 0.38)
-    local HEX_START_Y = 10
-    local HEX_SPACING = math.floor(HEX_W * 0.82)
-    local HEX_GLOW_PAD = 12
-    local function getHexPos(idx)
-        local zigzag = (idx % 2 == 0) and 5 or -3
-        local x = HEX_X + zigzag
-        local y = HEX_START_Y + idx * HEX_SPACING
-        return x, y
+    local HEX_ICON = math.floor(HEX_W * 0.45)
+    local HEX_GLOW_PAD = 14
+
+    local function repositionHexes()
+        local n = #tabs
+        if n == 0 then return end
+        local margin = 18
+        local usable = WIN_H - 2 * margin
+        local gap = n > 1 and math.max(math.floor((usable - n * HEX_W) / (n - 1)), 4) or 0
+        local spacing = HEX_W + gap
+        local totalUsed = (n - 1) * spacing + HEX_W
+        local startY = math.floor((WIN_H - totalUsed) / 2)
+        for i, t in ipairs(tabs) do
+            local idx = i - 1
+            local zigzag = (idx % 2 == 0) and 5 or -3
+            local x = HEX_X + zigzag
+            local y = startY + idx * spacing
+            t.hex.Position = UDim2.fromOffset(x, y)
+            t.glow.Position = UDim2.fromOffset(x - HEX_GLOW_PAD / 2, y - HEX_GLOW_PAD / 2)
+        end
     end
 
     -- ==================== WIDGET FACTORY ====================
@@ -357,9 +368,9 @@ function Library:CreateWindow(cfg)
 
         -- ========== SECTION ==========
         function target:CreateSection(sectionName)
-            local sec = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,24), LayoutOrder=wNextOrder(), Parent=wContent})
-            mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,3,0,14), Position=UDim2.fromOffset(0,5), BorderSizePixel=0, Parent=sec})
-            mk("TextLabel", {Text=sectionName, TextColor3=C.AccentH, Font=F.Bold, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-12,1,0), Position=UDim2.fromOffset(9,0), Parent=sec})
+            local sec = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,28), LayoutOrder=wNextOrder(), Parent=wContent})
+            mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,3,0,18), Position=UDim2.fromOffset(0,5), BorderSizePixel=0, Parent=sec})
+            mk("TextLabel", {Text=sectionName, TextColor3=C.AccentH, Font=F.Bold, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-12,1,0), Position=UDim2.fromOffset(9,0), Parent=sec})
             mk("Frame", {BackgroundColor3=C.Border, BackgroundTransparency=0.5, Size=UDim2.new(0.5,0,0,1), Position=UDim2.new(0.5,0,0.5,0), BorderSizePixel=0, Parent=sec})
         end
 
@@ -368,13 +379,13 @@ function Library:CreateWindow(cfg)
             local value = tcfg.CurrentValue or false
             local toggle = {Value = value}
             local hasDesc = tcfg.Description and tcfg.Description ~= ""
-            local frameH = hasDesc and 40 or 30
+            local frameH = hasDesc and 46 or 36
 
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
-            mk("TextLabel", {Text=tcfg.Name or "Toggle", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-56,0,16), Position=UDim2.fromOffset(8, hasDesc and 4 or 7), Parent=frame})
-            if hasDesc then mk("TextLabel", {Text=tcfg.Description, TextColor3=C.Dim, Font=F.Reg, TextSize=10, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-56,0,12), Position=UDim2.fromOffset(8,20), Parent=frame}) end
+            mk("TextLabel", {Text=tcfg.Name or "Toggle", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-56,0,20), Position=UDim2.fromOffset(8, hasDesc and 5 or 8), Parent=frame})
+            if hasDesc then mk("TextLabel", {Text=tcfg.Description, TextColor3=C.Dim, Font=F.Reg, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-56,0,14), Position=UDim2.fromOffset(8,26), Parent=frame}) end
 
             local swBg = mk("Frame", {BackgroundColor3=value and C.TogOn or C.TogOff, Size=UDim2.fromOffset(34,18), Position=UDim2.new(1,-42,0.5,-9), BorderSizePixel=0, Parent=frame}); rc(swBg,CORNER.Pill)
             local circle = mk("Frame", {BackgroundColor3=C.Knob, Size=UDim2.fromOffset(14,14), Position=value and UDim2.fromOffset(18,2) or UDim2.fromOffset(2,2), BorderSizePixel=0, Parent=swBg}); rc(circle,7)
@@ -407,21 +418,21 @@ function Library:CreateWindow(cfg)
             local currentKey = (kcfg and kcfg.CurrentKeybind) or "F"
             local listening = false
             local hasDesc = tcfg.Description and tcfg.Description ~= ""
-            local frameH = hasDesc and 40 or 30
+            local frameH = hasDesc and 46 or 36
 
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
             -- Label (left)
-            mk("TextLabel", {Text=tcfg.Name or "Toggle", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-100,0,16), Position=UDim2.fromOffset(8, hasDesc and 4 or 7), Parent=frame})
-            if hasDesc then mk("TextLabel", {Text=tcfg.Description, TextColor3=C.Dim, Font=F.Reg, TextSize=10, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-100,0,12), Position=UDim2.fromOffset(8,20), Parent=frame}) end
+            mk("TextLabel", {Text=tcfg.Name or "Toggle", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-100,0,20), Position=UDim2.fromOffset(8, hasDesc and 5 or 8), Parent=frame})
+            if hasDesc then mk("TextLabel", {Text=tcfg.Description, TextColor3=C.Dim, Font=F.Reg, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-100,0,14), Position=UDim2.fromOffset(8,26), Parent=frame}) end
 
             -- Toggle switch (far right)
             local swBg = mk("Frame", {BackgroundColor3=value and C.TogOn or C.TogOff, Size=UDim2.fromOffset(34,18), Position=UDim2.new(1,-42,0.5,-9), BorderSizePixel=0, ZIndex=2, Parent=frame}); rc(swBg,CORNER.Pill)
             local circle = mk("Frame", {BackgroundColor3=C.Knob, Size=UDim2.fromOffset(14,14), Position=value and UDim2.fromOffset(18,2) or UDim2.fromOffset(2,2), BorderSizePixel=0, ZIndex=3, Parent=swBg}); rc(circle,7)
 
             -- Keybind button (next to toggle, to its left)
-            local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.ValText, Font=F.Semi, TextSize=10, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(38,20), Position=UDim2.new(1,-86,0.5,-10), BorderSizePixel=0, AutoButtonColor=false, ZIndex=2, Parent=frame}); rc(keyBtn,CORNER.Small)
+            local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.ValText, Font=F.Semi, TextSize=12, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(42,22), Position=UDim2.new(1,-90,0.5,-11), BorderSizePixel=0, AutoButtonColor=false, ZIndex=2, Parent=frame}); rc(keyBtn,CORNER.Small)
 
             local function updateVis(v)
                 tw(swBg, {BackgroundColor3=v and C.TogOn or C.TogOff}, 0.15)
@@ -480,13 +491,13 @@ function Library:CreateWindow(cfg)
             local value = math.clamp(scfg.CurrentValue or mn, mn, mx)
             local slider = {Value = value}
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,44), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,50), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
-            mk("TextLabel", {Text=scfg.Name or "Slider", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.6,0,0,16), Position=UDim2.fromOffset(8,4), Parent=frame})
-            local valLbl = mk("TextLabel", {Text=(inc >= 1 and tostring(math.floor(value+0.5)) or string.format("%.2f", value):gsub("0+$",""):gsub("%.$",""))..suffix, TextColor3=C.ValText, Font=F.Semi, TextSize=12, TextXAlignment=Enum.TextXAlignment.Right, BackgroundTransparency=1, Size=UDim2.new(0.4,-12,0,16), Position=UDim2.new(0.6,0,0,4), Parent=frame})
+            mk("TextLabel", {Text=scfg.Name or "Slider", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.6,0,0,20), Position=UDim2.fromOffset(8,5), Parent=frame})
+            local valLbl = mk("TextLabel", {Text=(inc >= 1 and tostring(math.floor(value+0.5)) or string.format("%.2f", value):gsub("0+$",""):gsub("%.$",""))..suffix, TextColor3=C.ValText, Font=F.Semi, TextSize=17, TextXAlignment=Enum.TextXAlignment.Right, BackgroundTransparency=1, Size=UDim2.new(0.4,-12,0,20), Position=UDim2.new(0.6,0,0,5), Parent=frame})
 
-            local track = mk("Frame", {BackgroundColor3=C.SliderBg, Size=UDim2.new(1,-16,0,5), Position=UDim2.new(0,8,0,28), BorderSizePixel=0, Parent=frame}); rc(track,3)
+            local track = mk("Frame", {BackgroundColor3=C.SliderBg, Size=UDim2.new(1,-16,0,5), Position=UDim2.new(0,8,0,32), BorderSizePixel=0, Parent=frame}); rc(track,3)
             local pct = (value-mn)/math.max(mx-mn,0.001)
             local fill = mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(pct,0,1,0), BorderSizePixel=0, Parent=track}); rc(fill,3)
             mk("UIGradient", {Color=ColorSequence.new(C.AccentDk, C.Accent), Parent=fill})
@@ -511,7 +522,7 @@ function Library:CreateWindow(cfg)
             function slider:Set(v) updateSlider(v) end
 
             local sliding = false
-            local hitArea = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,0,0,22), Position=UDim2.new(0,0,0,22), AutoButtonColor=false, Parent=frame})
+            local hitArea = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,0,0,22), Position=UDim2.new(0,0,0,28), AutoButtonColor=false, Parent=frame})
             hitArea.InputBegan:Connect(function(input)
                 if input.UserInputType==Enum.UserInputType.MouseButton1 then
                     sliding=true; local rel=math.clamp((input.Position.X-track.AbsolutePosition.X)/math.max(track.AbsoluteSize.X,1),0,1)
@@ -534,7 +545,7 @@ function Library:CreateWindow(cfg)
 
         -- ========== BUTTON ==========
         function target:CreateButton(bcfg)
-            local btn2 = mk("TextButton", {Text=bcfg.Name or "Button", TextColor3=C.Label, Font=F.Med, TextSize=13, BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,30), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=wNextOrder(), Parent=wContent})
+            local btn2 = mk("TextButton", {Text=bcfg.Name or "Button", TextColor3=C.Label, Font=F.Med, TextSize=17, BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,36), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(btn2, CORNER.Widget); st(btn2, C.WidgetBorder)
             btn2.MouseButton1Click:Connect(function()
                 tw(btn2, {BackgroundColor3=C.Accent}, 0.06)
@@ -551,13 +562,13 @@ function Library:CreateWindow(cfg)
             local current = dcfg.CurrentOption or (options[1] or "")
             local dropdown = {Value=current}
             local isOpen = false
-            local closedH, optH = 30, 26
+            local closedH, optH = 36, 30
 
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
-            mk("TextLabel", {Text=dcfg.Name or "Dropdown", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.5,0,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
-            local selLbl = mk("TextLabel", {Text=current.." \226\150\190", TextColor3=C.ValText, Font=F.Semi, TextSize=12, TextXAlignment=Enum.TextXAlignment.Right, BackgroundTransparency=1, Size=UDim2.new(0.5,-10,0,closedH), Position=UDim2.new(0.5,0,0,0), Parent=frame})
+            mk("TextLabel", {Text=dcfg.Name or "Dropdown", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.5,0,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
+            local selLbl = mk("TextLabel", {Text=current.." \226\150\190", TextColor3=C.ValText, Font=F.Semi, TextSize=15, TextXAlignment=Enum.TextXAlignment.Right, BackgroundTransparency=1, Size=UDim2.new(0.5,-10,0,closedH), Position=UDim2.new(0.5,0,0,0), Parent=frame})
 
             local toggleBtn2 = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,0,0,closedH), ZIndex=2, AutoButtonColor=false, Parent=frame})
             local optC = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,-6,0,#options*optH), Position=UDim2.new(0,3,0,closedH+2), Parent=frame})
@@ -567,7 +578,7 @@ function Library:CreateWindow(cfg)
             function dropdown:Set(val) setCurrent(val) end
 
             for i, opt in ipairs(options) do
-                local ob = mk("TextButton", {Text="  "..opt, TextColor3=C.Text, Font=F.Reg, TextSize=11, TextXAlignment=Enum.TextXAlignment.Left, BackgroundColor3=C.Bg, Size=UDim2.new(1,0,0,optH), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=i, Parent=optC})
+                local ob = mk("TextButton", {Text="  "..opt, TextColor3=C.Text, Font=F.Reg, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundColor3=C.Bg, Size=UDim2.new(1,0,0,optH), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=i, Parent=optC})
                 rc(ob, CORNER.Small)
                 ob.MouseButton1Click:Connect(function() setCurrent(opt); isOpen=false; tw(frame,{Size=UDim2.new(1,0,0,closedH)},0.15) end)
                 ob.MouseEnter:Connect(function() tw(ob,{BackgroundColor3=C.Hover},0.06) end)
@@ -584,9 +595,9 @@ function Library:CreateWindow(cfg)
 
         -- ========== INPUT ==========
         function target:CreateInput(icfg)
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,30), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
-            mk("TextLabel", {Text=icfg.Name or "Input", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.4,0,1,0), Position=UDim2.fromOffset(8,0), Parent=frame})
-            local box = mk("TextBox", {Text="", PlaceholderText=icfg.PlaceholderText or "...", PlaceholderColor3=C.Dim, TextColor3=C.Text, Font=F.Reg, TextSize=11, BackgroundColor3=C.Bg, Size=UDim2.new(0.55,-8,0,22), Position=UDim2.new(0.45,0,0.5,-11), BorderSizePixel=0, ClearTextOnFocus=false, Parent=frame}); rc(box,CORNER.Small); pad(box,0,5,0,5)
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,36), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
+            mk("TextLabel", {Text=icfg.Name or "Input", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.4,0,1,0), Position=UDim2.fromOffset(8,0), Parent=frame})
+            local box = mk("TextBox", {Text="", PlaceholderText=icfg.PlaceholderText or "...", PlaceholderColor3=C.Dim, TextColor3=C.Text, Font=F.Reg, TextSize=13, BackgroundColor3=C.Bg, Size=UDim2.new(0.55,-8,0,24), Position=UDim2.new(0.45,0,0.5,-12), BorderSizePixel=0, ClearTextOnFocus=false, Parent=frame}); rc(box,CORNER.Small); pad(box,0,5,0,5)
             if icfg.Callback then box.FocusLost:Connect(function() pcall(icfg.Callback, box.Text); if icfg.RemoveTextAfterFocusLost then box.Text="" end end) end
         end
 
@@ -594,9 +605,9 @@ function Library:CreateWindow(cfg)
         function target:CreateKeybind(kcfg)
             local currentKey = kcfg.CurrentKeybind or "F"
             local listening = false
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,30), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
-            mk("TextLabel", {Text=kcfg.Name or "Keybind", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-52,1,0), Position=UDim2.fromOffset(8,0), Parent=frame})
-            local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.ValText, Font=F.Semi, TextSize=11, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(40,22), Position=UDim2.new(1,-46,0.5,-11), BorderSizePixel=0, AutoButtonColor=false, Parent=frame}); rc(keyBtn,CORNER.Small)
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,36), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
+            mk("TextLabel", {Text=kcfg.Name or "Keybind", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-52,1,0), Position=UDim2.fromOffset(8,0), Parent=frame})
+            local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.ValText, Font=F.Semi, TextSize=12, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(44,24), Position=UDim2.new(1,-50,0.5,-12), BorderSizePixel=0, AutoButtonColor=false, Parent=frame}); rc(keyBtn,CORNER.Small)
             keyBtn.MouseButton1Click:Connect(function()
                 if listening then return end; listening=true; keyBtn.Text="[...]"; tw(keyBtn,{BackgroundColor3=C.AccentDk},0.1)
             end)
@@ -622,21 +633,21 @@ function Library:CreateWindow(cfg)
         -- ========== LABEL ==========
         function target:CreateLabel(text)
             local label = {}
-            local lbl = mk("TextLabel", {Text=text or "", TextColor3=C.Dim, Font=F.Reg, TextSize=11, TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, BackgroundTransparency=1, Size=UDim2.new(1,-8,0,18), LayoutOrder=wNextOrder(), Parent=wContent}); pad(lbl,0,0,0,8)
+            local lbl = mk("TextLabel", {Text=text or "", TextColor3=C.Dim, Font=F.Reg, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, BackgroundTransparency=1, Size=UDim2.new(1,-8,0,22), LayoutOrder=wNextOrder(), Parent=wContent}); pad(lbl,0,0,0,8)
             function label:Set(t) lbl.Text=t end; return label
         end
 
         -- ========== PARAGRAPH ==========
         function target:CreateParagraph(pcfg2)
             pcfg2 = pcfg2 or {}; local para = {}
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,52), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,58), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
             mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,3,1,-8), Position=UDim2.fromOffset(4,4), BorderSizePixel=0, Parent=frame})
-            local tLbl = mk("TextLabel", {Text=pcfg2.Title or "", TextColor3=C.Text, Font=F.Semi, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-18,0,16), Position=UDim2.fromOffset(14,5), Parent=frame})
-            local cLbl = mk("TextLabel", {Text=pcfg2.Content or "", TextColor3=C.Dim, Font=F.Reg, TextSize=10, TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, TextYAlignment=Enum.TextYAlignment.Top, BackgroundTransparency=1, Size=UDim2.new(1,-18,0,26), Position=UDim2.fromOffset(14,22), Parent=frame})
+            local tLbl = mk("TextLabel", {Text=pcfg2.Title or "", TextColor3=C.Text, Font=F.Semi, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-18,0,20), Position=UDim2.fromOffset(14,5), Parent=frame})
+            local cLbl = mk("TextLabel", {Text=pcfg2.Content or "", TextColor3=C.Dim, Font=F.Reg, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, TextYAlignment=Enum.TextYAlignment.Top, BackgroundTransparency=1, Size=UDim2.new(1,-18,0,28), Position=UDim2.fromOffset(14,26), Parent=frame})
             local function resize()
                 local ts=game:GetService("TextService")
-                local b=ts:GetTextSize(cLbl.Text,10,F.Reg,Vector2.new(math.max(frame.AbsoluteSize.X-18,80),1000))
-                local h=math.max(52,26+b.Y+8); frame.Size=UDim2.new(1,0,0,h); cLbl.Size=UDim2.new(1,-18,0,b.Y+2)
+                local b=ts:GetTextSize(cLbl.Text,12,F.Reg,Vector2.new(math.max(frame.AbsoluteSize.X-18,80),1000))
+                local h=math.max(58,30+b.Y+8); frame.Size=UDim2.new(1,0,0,h); cLbl.Size=UDim2.new(1,-18,0,b.Y+2)
             end; task.defer(resize)
             function para:Set(c2) if c2.Title then tLbl.Text=c2.Title end; if c2.Content then cLbl.Text=c2.Content; task.defer(resize) end end; return para
         end
@@ -645,11 +656,11 @@ function Library:CreateWindow(cfg)
         function target:CreateColorPicker(ccfg)
             ccfg = ccfg or {}
             local value = ccfg.Default or Color3.fromRGB(130,87,230)
-            local picker = {Value=value}; local pickerOpen=false; local closedH,openH=30,118
+            local picker = {Value=value}; local pickerOpen=false; local closedH,openH=36,130
 
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
-            mk("TextLabel", {Text=ccfg.Name or "Color", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-44,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
-            local preview = mk("Frame", {BackgroundColor3=value, Size=UDim2.fromOffset(22,16), Position=UDim2.new(1,-30,0,7), BorderSizePixel=0, Parent=frame}); rc(preview,CORNER.Small); st(preview,C.Border)
+            mk("TextLabel", {Text=ccfg.Name or "Color", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-44,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
+            local preview = mk("Frame", {BackgroundColor3=value, Size=UDim2.fromOffset(22,16), Position=UDim2.new(1,-30,0,10), BorderSizePixel=0, Parent=frame}); rc(preview,CORNER.Small); st(preview,C.Border)
             local previewBtn = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,0,0,closedH), ZIndex=2, AutoButtonColor=false, Parent=frame})
 
             local cR,cG,cB = value.R, value.G, value.B
@@ -663,10 +674,10 @@ function Library:CreateWindow(cfg)
             for ci, ch in ipairs({{"R",function() return cR end,function(v) cR=v end},{"G",function() return cG end,function(v) cG=v end},{"B",function() return cB end,function(v) cB=v end}}) do
                 local chName,getV,setV = ch[1],ch[2],ch[3]
                 local yOff = closedH+2+(ci-1)*26
-                mk("TextLabel", {Text=chName, TextColor3=C.Dim, Font=F.Semi, TextSize=10, BackgroundTransparency=1, Size=UDim2.fromOffset(14,18), Position=UDim2.fromOffset(8,yOff+1), Parent=frame})
+                mk("TextLabel", {Text=chName, TextColor3=C.Dim, Font=F.Semi, TextSize=12, BackgroundTransparency=1, Size=UDim2.fromOffset(14,18), Position=UDim2.fromOffset(8,yOff+1), Parent=frame})
                 local chTrack = mk("Frame", {BackgroundColor3=C.SliderBg, Size=UDim2.new(1,-52,0,5), Position=UDim2.new(0,26,0,yOff+7), BorderSizePixel=0, Parent=frame}); rc(chTrack,3)
                 local chFill = mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(getV(),0,1,0), BorderSizePixel=0, Parent=chTrack}); rc(chFill,3)
-                local chVal = mk("TextLabel", {Text=tostring(math.floor(getV()*255)), TextColor3=C.ValText, Font=F.Semi, TextSize=9, BackgroundTransparency=1, Size=UDim2.fromOffset(22,18), Position=UDim2.new(1,-24,0,yOff), TextXAlignment=Enum.TextXAlignment.Right, Parent=frame})
+                local chVal = mk("TextLabel", {Text=tostring(math.floor(getV()*255)), TextColor3=C.ValText, Font=F.Semi, TextSize=12, BackgroundTransparency=1, Size=UDim2.fromOffset(22,18), Position=UDim2.new(1,-24,0,yOff), TextXAlignment=Enum.TextXAlignment.Right, Parent=frame})
                 local chSliding=false
                 local chHit = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,-52,0,18), Position=UDim2.new(0,26,0,yOff), AutoButtonColor=false, Parent=frame})
                 chHit.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 then chSliding=true; local p=math.clamp((input.Position.X-chTrack.AbsolutePosition.X)/math.max(chTrack.AbsoluteSize.X,1),0,1); setV(p); chFill.Size=UDim2.new(p,0,1,0); chVal.Text=tostring(math.floor(p*255)); updateColor() end end)
@@ -718,8 +729,6 @@ function Library:CreateWindow(cfg)
 
         local Tab = {}
         local isFirst = #tabs==0
-        local tabIndex = #tabs
-        local hx, hy = getHexPos(tabIndex)
 
         -- Hex image tab button (actual hex shape via image)
         local hexBtn = mk("ImageButton", {
@@ -727,7 +736,7 @@ function Library:CreateWindow(cfg)
             ImageColor3 = isFirst and C.Accent or C.Dim,
             BackgroundTransparency = 1,
             Size = UDim2.fromOffset(HEX_W, HEX_W),
-            Position = UDim2.fromOffset(hx, hy),
+            Position = UDim2.fromOffset(0, 0),
             ScaleType = Enum.ScaleType.Stretch,
             AutoButtonColor = false,
             Parent = sidebar,
@@ -740,7 +749,7 @@ function Library:CreateWindow(cfg)
             ImageTransparency = isFirst and 0.55 or 1,
             BackgroundTransparency = 1,
             Size = UDim2.fromOffset(HEX_W+HEX_GLOW_PAD, HEX_W+HEX_GLOW_PAD),
-            Position = UDim2.fromOffset(hx-HEX_GLOW_PAD/2, hy-HEX_GLOW_PAD/2),
+            Position = UDim2.fromOffset(0, 0),
             ScaleType = Enum.ScaleType.Stretch,
             ZIndex = 0,
             Parent = sidebar,
@@ -763,6 +772,7 @@ function Library:CreateWindow(cfg)
         local tabData = {name=tabName, hex=hexBtn, glow=hexGlow, content=content, iconImg=iconImg, iconTxt=iconTxt}
         table.insert(tabs, tabData)
         if isFirst then activeTab=tabName end
+        repositionHexes()
 
         hexBtn.MouseButton1Click:Connect(function() selectTab(tabName) end)
         -- Hover: show purple ambient glow
@@ -795,18 +805,18 @@ function Library:CreateWindow(cfg)
                 local subContainer = mk("Frame", {Name=tabName.."_Sub", BackgroundTransparency=1, Size=UDim2.new(1,-12,1,-6), Position=UDim2.fromOffset(6,3), ClipsDescendants=true, Visible=(activeTab==tabName), Parent=contentArea})
                 tabData.content = subContainer
 
-                subTabBar = mk("Frame", {BackgroundColor3=C.Header, BackgroundTransparency=0.15, Size=UDim2.new(1,0,0,32), BorderSizePixel=0, Parent=subContainer}); rc(subTabBar,CORNER.Widget)
+                subTabBar = mk("Frame", {BackgroundColor3=C.Header, BackgroundTransparency=0.15, Size=UDim2.new(1,0,0,38), BorderSizePixel=0, Parent=subContainer}); rc(subTabBar,CORNER.Widget)
                 mk("UIListLayout", {FillDirection=Enum.FillDirection.Horizontal, SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,1), Parent=subTabBar})
             end
 
-            local subBtn = mk("TextButton", {Text=subTabName, TextColor3=isFirstSub and C.Text or C.Dim, Font=F.Semi, TextSize=12, BackgroundTransparency=1, Size=UDim2.new(0,0,1,0), AutomaticSize=Enum.AutomaticSize.X, AutoButtonColor=false, LayoutOrder=#subTabs, Parent=subTabBar})
+            local subBtn = mk("TextButton", {Text=subTabName, TextColor3=isFirstSub and C.Text or C.Dim, Font=F.Semi, TextSize=15, BackgroundTransparency=1, Size=UDim2.new(0,0,1,0), AutomaticSize=Enum.AutomaticSize.X, AutoButtonColor=false, LayoutOrder=#subTabs, Parent=subTabBar})
             pad(subBtn, 0,14,0,14)
 
             -- Purple glow indicator
             local glowLine = mk("Frame", {BackgroundColor3=C.Accent, BackgroundTransparency=isFirstSub and 0.2 or 1, Size=UDim2.new(1,4,0,2), Position=UDim2.new(0,-2,1,-2), BorderSizePixel=0, Parent=subBtn}); rc(glowLine,1)
             local glowOuter = mk("Frame", {BackgroundColor3=C.Accent, BackgroundTransparency=isFirstSub and 0.75 or 1, Size=UDim2.new(1,12,0,6), Position=UDim2.new(0,-6,1,-4), BorderSizePixel=0, ZIndex=0, Parent=subBtn}); rc(glowOuter,3)
 
-            local subContent = mk("ScrollingFrame", {Name=subTabName, BackgroundTransparency=1, Size=UDim2.new(1,0,1,-37), Position=UDim2.fromOffset(0,35), ScrollBarThickness=3, ScrollBarImageColor3=C.AccentDk, CanvasSize=UDim2.new(0,0,0,0), BorderSizePixel=0, Visible=isFirstSub, Parent=tabData.content})
+            local subContent = mk("ScrollingFrame", {Name=subTabName, BackgroundTransparency=1, Size=UDim2.new(1,0,1,-43), Position=UDim2.fromOffset(0,41), ScrollBarThickness=3, ScrollBarImageColor3=C.AccentDk, CanvasSize=UDim2.new(0,0,0,0), BorderSizePixel=0, Visible=isFirstSub, Parent=tabData.content})
             local subLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,4), Parent=subContent})
             subLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() subContent.CanvasSize=UDim2.new(0,0,0,subLayout.AbsoluteContentSize.Y+10) end)
 
@@ -816,8 +826,8 @@ function Library:CreateWindow(cfg)
             local function selectSubTab(stName)
                 for _, s in ipairs(subTabs) do
                     if s.name==stName then
-                        s.content.Visible=true; s.content.Position=UDim2.fromOffset(14,35)
-                        tw(s.content, {Position=UDim2.fromOffset(0,35)}, 0.2)
+                        s.content.Visible=true; s.content.Position=UDim2.fromOffset(14,41)
+                        tw(s.content, {Position=UDim2.fromOffset(0,41)}, 0.2)
                         s.button.TextColor3=C.Text
                         tw(s.glow, {BackgroundTransparency=0.2}, 0.15)
                         tw(s.glowOuter, {BackgroundTransparency=0.75}, 0.15)
