@@ -1,5 +1,5 @@
--- JitlerUI.lua v6.2 — Premium Exploit Hub UI Library
--- Smaller hex tabs, bold zigzag, 2px widget gap, dropdown text clipping
+-- JitlerUI.lua v7.0 — Premium Exploit Hub UI Library
+-- Section cards, pinned settings, theme engine, accent customization
 
 local Library = {}
 local TweenService = game:GetService("TweenService")
@@ -8,7 +8,32 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local HttpSvc = game:GetService("HttpService")
 
--- ==================== THEME ====================
+-- ==================== THEME ENGINE ====================
+local Themes = {
+    ["Dark Purple"] = {
+        Accent = Color3.fromRGB(138, 60, 255),
+        AccentH = Color3.fromRGB(170, 100, 255),
+        AccentDk = Color3.fromRGB(88, 36, 180),
+    },
+    ["Dark Blue"] = {
+        Accent = Color3.fromRGB(40, 100, 220),
+        AccentH = Color3.fromRGB(70, 140, 255),
+        AccentDk = Color3.fromRGB(25, 60, 150),
+    },
+    ["Black / Minimal"] = {
+        Accent = Color3.fromRGB(160, 160, 170),
+        AccentH = Color3.fromRGB(200, 200, 210),
+        AccentDk = Color3.fromRGB(80, 80, 90),
+    },
+    ["Neon Cyan"] = {
+        Accent = Color3.fromRGB(0, 220, 220),
+        AccentH = Color3.fromRGB(60, 255, 255),
+        AccentDk = Color3.fromRGB(0, 140, 140),
+    },
+    ["Custom Accent"] = nil,
+}
+local ThemeNames = {"Dark Purple","Dark Blue","Black / Minimal","Neon Cyan","Custom Accent"}
+
 local C = {
     Bg        = Color3.fromRGB(5, 5, 8),
     BgOuter   = Color3.fromRGB(0, 0, 0),
@@ -38,6 +63,8 @@ local C = {
     TabActive = Color3.fromRGB(36, 28, 60),
     Shadow    = Color3.fromRGB(0, 0, 0),
     Knob      = Color3.fromRGB(210, 195, 240),
+    Card      = Color3.fromRGB(10, 10, 14),
+    CardBorder= Color3.fromRGB(30, 30, 40),
 }
 local F = {
     Bold = Enum.Font.GothamBold,
@@ -51,7 +78,25 @@ local CORNER = {
     Tab    = 10,
     Small  = 6,
     Pill   = 9,
+    Card   = 8,
 }
+
+-- UI Settings state
+local UISettings = {
+    Theme = "Dark Purple",
+    CustomAccent = Color3.fromRGB(138, 60, 255),
+    BgTransparency = 0,
+    SidebarTransparency = 0.50,
+    CardTransparency = 0,
+    GlobalScale = 1,
+    TextScale = 1,
+    IconScale = 1,
+    EnableGlow = true,
+    EnableShadow = true,
+    CompactMode = false,
+    RoundedMode = true,
+}
+local _uiSettingsCallbacks = {}
 
 -- ==================== HELPERS ====================
 local function mk(cls, props)
@@ -70,7 +115,6 @@ local function pad(parent, t, r, b, l)
     return mk("UIPadding", {PaddingTop=UDim.new(0,t or 0), PaddingRight=UDim.new(0,r or 0), PaddingBottom=UDim.new(0,b or 0), PaddingLeft=UDim.new(0,l or 0), Parent=parent})
 end
 
--- Shadow helper: creates a larger dark frame behind a parent for depth
 local function addShadow(parent, radius, offset, transparency)
     offset = offset or 6
     transparency = transparency or 0.55
@@ -145,7 +189,6 @@ function Library:CreateWindow(cfg)
     local loadScreen, loadFill, loadPct
 
     if hasLoading then
-        -- Transparent overlay — only logo + bar visible, no colored background
         loadScreen = mk("Frame", {Name="Loading", BackgroundColor3=Color3.new(0,0,0), BackgroundTransparency=0, Size=UDim2.new(1,0,1,0), ZIndex=100, BorderSizePixel=0, Parent=sg})
         local center = mk("Frame", {BackgroundTransparency=1, Size=UDim2.fromOffset(200,160), Position=UDim2.new(0.5,-100,0.5,-80), ZIndex=101, Parent=loadScreen})
         local loadIcon = cfg.Icon
@@ -165,10 +208,8 @@ function Library:CreateWindow(cfg)
     local SIDEBAR_W = 54
     local HEADER_H = 40
 
-    -- Outer shadow wrapper
     local mainWrapper = mk("Frame", {Name="MainWrapper", BackgroundTransparency=1, Size=UDim2.fromOffset(WIN_W+16, WIN_H+16), Position=UDim2.new(0.5,-math.floor((WIN_W+16)/2),0.5,-math.floor((WIN_H+16)/2)), ClipsDescendants=false, Visible=not hasLoading, Parent=sg})
 
-    -- Multi-layer shadow behind main frame (soft purple outer glow)
     local shadowGlow = mk("Frame", {BackgroundColor3=C.AccentDk, BackgroundTransparency=0.90, Size=UDim2.new(1,18,1,18), Position=UDim2.fromOffset(-9,-7), BorderSizePixel=0, ZIndex=0, Parent=mainWrapper}); rc(shadowGlow, CORNER.Main+10)
     local shadowOuter = mk("Frame", {BackgroundColor3=C.Shadow, BackgroundTransparency=0.65, Size=UDim2.new(1,8,1,8), Position=UDim2.fromOffset(-4,-2), BorderSizePixel=0, ZIndex=0, Parent=mainWrapper}); rc(shadowOuter, CORNER.Main+6)
     local shadowMid = mk("Frame", {BackgroundColor3=C.Shadow, BackgroundTransparency=0.45, Size=UDim2.new(1,2,1,2), Position=UDim2.fromOffset(-1,0), BorderSizePixel=0, ZIndex=0, Parent=mainWrapper}); rc(shadowMid, CORNER.Main+3)
@@ -178,14 +219,12 @@ function Library:CreateWindow(cfg)
     local mainSt = st(main, C.Border, 1); mainSt.Transparency = 0.2
 
     -- ==================== GLASS SIDEBAR ====================
-    local sidebar = mk("Frame", {Name="Sidebar", BackgroundColor3=C.Sidebar, BackgroundTransparency=0.50, Size=UDim2.new(0,SIDEBAR_W,1,0), BorderSizePixel=0, ClipsDescendants=false, Parent=main})
-    -- Right edge line
+    local sidebar = mk("Frame", {Name="Sidebar", BackgroundColor3=C.Sidebar, BackgroundTransparency=UISettings.SidebarTransparency, Size=UDim2.new(0,SIDEBAR_W,1,0), BorderSizePixel=0, ClipsDescendants=false, Parent=main})
     mk("Frame", {BackgroundColor3=C.Border, BackgroundTransparency=0.3, Size=UDim2.new(0,1,1,0), Position=UDim2.new(1,0,0,0), BorderSizePixel=0, Parent=sidebar})
 
     -- ==================== RIGHT AREA ====================
     local rightArea = mk("Frame", {Name="RightArea", BackgroundTransparency=1, Size=UDim2.new(1,-(SIDEBAR_W+1),1,0), Position=UDim2.fromOffset(SIDEBAR_W+1,0), ClipsDescendants=true, Parent=main})
 
-    -- Header
     local header = mk("Frame", {Name="Header", BackgroundColor3=C.Header, Size=UDim2.new(1,0,0,HEADER_H), BorderSizePixel=0, Parent=rightArea})
     mk("UIGradient", {Transparency=NumberSequence.new(0.15,0.02), Rotation=90, Parent=header})
 
@@ -196,10 +235,8 @@ function Library:CreateWindow(cfg)
     else
         mk("TextLabel", {Text=name, TextColor3=C.Text, Font=F.Bold, TextSize=22, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-110,1,0), Position=UDim2.fromOffset(12,0), Parent=header})
     end
-    -- Header bottom shadow line
     mk("Frame", {BackgroundColor3=C.Shadow, BackgroundTransparency=0.5, Size=UDim2.new(1,0,0,2), Position=UDim2.new(0,0,1,-1), BorderSizePixel=0, Parent=header})
 
-    -- Close / Minimize
     local closeBtn = mk("TextButton", {Text="\226\156\149", TextColor3=C.Dim, Font=F.Bold, TextSize=14, BackgroundTransparency=1, Size=UDim2.fromOffset(28,28), Position=UDim2.new(1,-32,0,6), AutoButtonColor=false, Parent=header})
     local minBtn = mk("TextButton", {Text="\226\148\128", TextColor3=C.Dim, Font=F.Bold, TextSize=12, BackgroundTransparency=1, Size=UDim2.fromOffset(28,28), Position=UDim2.new(1,-58,0,6), AutoButtonColor=false, Parent=header})
     for _, b in ipairs({closeBtn, minBtn}) do
@@ -207,13 +244,10 @@ function Library:CreateWindow(cfg)
         b.MouseLeave:Connect(function() tw(b, {TextColor3=C.Dim}, 0.1) end)
     end
 
-    -- Content area
     local contentArea = mk("Frame", {Name="Content", BackgroundTransparency=1, Size=UDim2.new(1,0,1,-HEADER_H), Position=UDim2.fromOffset(0,HEADER_H), ClipsDescendants=true, Parent=rightArea})
 
-    -- Dialog overlay
     local dialogOverlay = mk("Frame", {Name="DialogOverlay", BackgroundColor3=Color3.new(0,0,0), BackgroundTransparency=0.5, Size=UDim2.new(1,0,1,0), Visible=false, ZIndex=50, Parent=main})
 
-    -- Notifications
     local notifC = mk("Frame", {Name="Notifs", BackgroundTransparency=1, Size=UDim2.new(0,280,1,0), Position=UDim2.new(1,-290,0,8), Parent=sg})
     mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,5), VerticalAlignment=Enum.VerticalAlignment.Top, Parent=notifC})
     _notifContainer = notifC
@@ -221,6 +255,7 @@ function Library:CreateWindow(cfg)
     -- ==================== STATE ====================
     local Window = {}
     local tabs = {}
+    local settingsTabData = nil
     local activeTab = nil
     local minimized = false
     local Flags = {}
@@ -264,10 +299,44 @@ function Library:CreateWindow(cfg)
     function Window:DeleteConfig(pn) DeleteConfig(pn) end
     function Window:ListConfigs() return ListConfigs() end
 
+    -- UI Theme persistence
+    local function GetUISettingsPath() return cfgFolder.."/UITheme.json" end
+    local function SaveUISettings()
+        if typeof(writefile)~="function" then return end
+        pcall(function()
+            local d = {
+                Theme = UISettings.Theme,
+                CustomAccent = {R=math.floor(UISettings.CustomAccent.R*255), G=math.floor(UISettings.CustomAccent.G*255), B=math.floor(UISettings.CustomAccent.B*255)},
+                BgTransparency = UISettings.BgTransparency,
+                SidebarTransparency = UISettings.SidebarTransparency,
+                CardTransparency = UISettings.CardTransparency,
+                GlobalScale = UISettings.GlobalScale,
+                TextScale = UISettings.TextScale,
+                IconScale = UISettings.IconScale,
+                EnableGlow = UISettings.EnableGlow,
+                EnableShadow = UISettings.EnableShadow,
+                CompactMode = UISettings.CompactMode,
+                RoundedMode = UISettings.RoundedMode,
+            }
+            _makefolder(cfgFolder); _writefile(GetUISettingsPath(), HttpSvc:JSONEncode(d))
+        end)
+    end
+    local function LoadUISettings()
+        local c = _readfile(GetUISettingsPath()); if not c then return end
+        local ok,d = pcall(HttpSvc.JSONDecode, HttpSvc, c); if not ok or type(d)~="table" then return end
+        for k,v in pairs(d) do
+            if k == "CustomAccent" and type(v) == "table" and v.R then
+                UISettings.CustomAccent = Color3.fromRGB(v.R, v.G, v.B)
+            elseif UISettings[k] ~= nil and k ~= "CustomAccent" then
+                UISettings[k] = v
+            end
+        end
+    end
+
     -- ==================== DIALOG ====================
     function Window:Dialog(dc)
         dc = dc or {}
-        for _,c in ipairs(dialogOverlay:GetChildren()) do c:Destroy() end
+        for _,c2 in ipairs(dialogOverlay:GetChildren()) do c2:Destroy() end
         dialogOverlay.Visible = true
         local panel = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.fromOffset(300,0), Position=UDim2.new(0.5,-150,0.5,-65), BorderSizePixel=0, ClipsDescendants=true, ZIndex=51, Parent=dialogOverlay}); rc(panel,CORNER.Main); st(panel,C.AccentDk)
         mk("TextLabel", {Text=dc.Title or "Confirm", TextColor3=C.Text, Font=F.Bold, TextSize=17, BackgroundTransparency=1, Size=UDim2.new(1,-16,0,26), Position=UDim2.fromOffset(8,8), TextXAlignment=Enum.TextXAlignment.Left, ZIndex=52, Parent=panel})
@@ -333,9 +402,23 @@ function Library:CreateWindow(cfg)
                 if t.iconTxt then t.iconTxt.TextColor3 = C.Dim end
             end
         end
+        -- Handle settings tab separately
+        if settingsTabData then
+            if tabName == settingsTabData.name then
+                settingsTabData.content.Visible = true
+                tw(settingsTabData.hex, {ImageColor3=C.Accent}, 0.2)
+                if settingsTabData.glow then tw(settingsTabData.glow, {ImageTransparency=0.55}, 0.2) end
+                if settingsTabData.iconImg then tw(settingsTabData.iconImg, {ImageColor3=C.Text}, 0.2) end
+            else
+                settingsTabData.content.Visible = false
+                tw(settingsTabData.hex, {ImageColor3=C.Dim}, 0.2)
+                if settingsTabData.glow then tw(settingsTabData.glow, {ImageTransparency=1}, 0.2) end
+                if settingsTabData.iconImg then tw(settingsTabData.iconImg, {ImageColor3=C.Dim}, 0.2) end
+            end
+        end
     end
 
-    -- Hex tab positioning: adaptive vertical spacing
+    -- Hex tab positioning: adaptive vertical spacing (excludes settings)
     local HEX_IMG = "rbxassetid://14482391301"
     local HEX_W = math.floor(SIDEBAR_W / 0.5)
     local HEX_X = -math.floor(0.5 * HEX_W)
@@ -345,12 +428,13 @@ function Library:CreateWindow(cfg)
     local function repositionHexes()
         local n = #tabs
         if n == 0 then return end
-        local margin = 18
-        local usable = WIN_H - 2 * margin
+        local topMargin = 18
+        local bottomReserved = settingsTabData and (HEX_W + 20) or 0
+        local usable = WIN_H - topMargin - 18 - bottomReserved
         local gap = n > 1 and math.max(math.floor((usable - n * HEX_W) / (n - 1)), 4) or 0
         local spacing = HEX_W + gap
         local totalUsed = (n - 1) * spacing + HEX_W
-        local startY = math.floor((WIN_H - totalUsed) / 2)
+        local startY = topMargin + math.floor((usable - totalUsed) / 2)
         for i, t in ipairs(tabs) do
             local idx = i - 1
             local zigzag = (idx % 2 == 0) and 14 or -6
@@ -359,6 +443,13 @@ function Library:CreateWindow(cfg)
             t.hex.Position = UDim2.fromOffset(x, y)
             t.glow.Position = UDim2.fromOffset(x - HEX_GLOW_PAD / 2, y - HEX_GLOW_PAD / 2)
         end
+        -- Pin settings hex at bottom
+        if settingsTabData then
+            local sy = WIN_H - HEX_W - 12
+            local sx = HEX_X + 4
+            settingsTabData.hex.Position = UDim2.fromOffset(sx, sy)
+            settingsTabData.glow.Position = UDim2.fromOffset(sx - HEX_GLOW_PAD / 2, sy - HEX_GLOW_PAD / 2)
+        end
     end
 
     -- ==================== WIDGET FACTORY ====================
@@ -366,12 +457,47 @@ function Library:CreateWindow(cfg)
         local wOrder = 0
         local function wNextOrder() wOrder = wOrder + 1; return wOrder end
 
-        -- ========== SECTION ==========
+        -- Track current section card so widgets go inside it
+        local _currentCard = nil
+        local _currentCardLayout = nil
+
+        -- ========== SECTION (card container) ==========
         function target:CreateSection(sectionName)
-            local sec = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,28), LayoutOrder=wNextOrder(), Parent=wContent})
-            mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,3,0,18), Position=UDim2.fromOffset(0,5), BorderSizePixel=0, Parent=sec})
-            mk("TextLabel", {Text=sectionName, TextColor3=C.AccentH, Font=F.Bold, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-12,1,0), Position=UDim2.fromOffset(9,0), Parent=sec})
-            mk("Frame", {BackgroundColor3=C.Border, BackgroundTransparency=0.5, Size=UDim2.new(0.5,0,0,1), Position=UDim2.new(0.5,0,0.5,0), BorderSizePixel=0, Parent=sec})
+            -- Create card container
+            local card = mk("Frame", {
+                Name = "SectionCard",
+                BackgroundColor3 = C.Card,
+                BackgroundTransparency = UISettings.CardTransparency,
+                Size = UDim2.new(1, 0, 0, 0),
+                AutomaticSize = Enum.AutomaticSize.Y,
+                BorderSizePixel = 0,
+                LayoutOrder = wNextOrder(),
+                Parent = wContent,
+            })
+            rc(card, CORNER.Card)
+            st(card, C.CardBorder, 1)
+            pad(card, 4, 6, 6, 6)
+
+            -- Internal layout for section header + widgets
+            local cardLayout = mk("UIListLayout", {
+                SortOrder = Enum.SortOrder.LayoutOrder,
+                Padding = UDim.new(0, 2),
+                Parent = card,
+            })
+
+            -- Section header inside card
+            local hdr = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,22), LayoutOrder=0, Parent=card})
+            mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,3,0,16), Position=UDim2.fromOffset(0,3), BorderSizePixel=0, Parent=hdr})
+            mk("TextLabel", {Text=sectionName, TextColor3=C.AccentH, Font=F.Bold, TextSize=15, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-8,1,0), Position=UDim2.fromOffset(8,0), Parent=hdr})
+
+            _currentCard = card
+            _currentCardLayout = cardLayout
+        end
+
+        -- Helper: get the current widget parent (inside card or fallback to wContent)
+        local function getWidgetParent()
+            if _currentCard then return _currentCard end
+            return wContent
         end
 
         -- ========== TOGGLE ==========
@@ -381,7 +507,7 @@ function Library:CreateWindow(cfg)
             local hasDesc = tcfg.Description and tcfg.Description ~= ""
             local frameH = hasDesc and 46 or 36
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=getWidgetParent()})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
             mk("TextLabel", {Text=tcfg.Name or "Toggle", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-56,0,20), Position=UDim2.fromOffset(8, hasDesc and 5 or 8), Parent=frame})
@@ -411,7 +537,7 @@ function Library:CreateWindow(cfg)
             return toggle
         end
 
-        -- ========== TOGGLE WITH KEYBIND (compound row) ==========
+        -- ========== TOGGLE WITH KEYBIND ==========
         function target:CreateToggleWithKeybind(tcfg, kcfg)
             local value = tcfg.CurrentValue or false
             local toggle = {Value = value}
@@ -420,18 +546,15 @@ function Library:CreateWindow(cfg)
             local hasDesc = tcfg.Description and tcfg.Description ~= ""
             local frameH = hasDesc and 46 or 36
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=getWidgetParent()})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
-            -- Label (left)
             mk("TextLabel", {Text=tcfg.Name or "Toggle", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-100,0,20), Position=UDim2.fromOffset(8, hasDesc and 5 or 8), Parent=frame})
             if hasDesc then mk("TextLabel", {Text=tcfg.Description, TextColor3=C.Dim, Font=F.Reg, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-100,0,14), Position=UDim2.fromOffset(8,26), Parent=frame}) end
 
-            -- Toggle switch (far right)
             local swBg = mk("Frame", {BackgroundColor3=value and C.TogOn or C.TogOff, Size=UDim2.fromOffset(34,18), Position=UDim2.new(1,-42,0.5,-9), BorderSizePixel=0, ZIndex=2, Parent=frame}); rc(swBg,CORNER.Pill)
             local circle = mk("Frame", {BackgroundColor3=C.Knob, Size=UDim2.fromOffset(14,14), Position=value and UDim2.fromOffset(18,2) or UDim2.fromOffset(2,2), BorderSizePixel=0, ZIndex=3, Parent=swBg}); rc(circle,7)
 
-            -- Keybind button (next to toggle, to its left)
             local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.ValText, Font=F.Semi, TextSize=12, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(42,22), Position=UDim2.new(1,-90,0.5,-11), BorderSizePixel=0, AutoButtonColor=false, ZIndex=2, Parent=frame}); rc(keyBtn,CORNER.Small)
 
             local function updateVis(v)
@@ -443,14 +566,12 @@ function Library:CreateWindow(cfg)
                 if tcfg.Callback then pcall(tcfg.Callback, v) end
             end
 
-            -- Click on toggle switch area
             local swOverlay = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.fromOffset(34,18), Position=UDim2.new(1,-42,0.5,-9), ZIndex=4, AutoButtonColor=false, Parent=frame})
             swOverlay.MouseButton1Click:Connect(function()
                 value=not value; toggle.Value=value; updateVis(value)
                 if tcfg.Callback then pcall(tcfg.Callback, value) end; DebouncedSave()
             end)
 
-            -- Keybind listening
             keyBtn.MouseButton1Click:Connect(function()
                 if listening then return end; listening=true; keyBtn.Text="[...]"; tw(keyBtn,{BackgroundColor3=C.AccentDk},0.1)
             end)
@@ -467,13 +588,11 @@ function Library:CreateWindow(cfg)
                     return
                 end
                 if not gp and currentKey~="None" and input.KeyCode~=Enum.KeyCode.Unknown and input.KeyCode.Name==currentKey then
-                    -- Toggle on keybind press
                     value=not value; toggle.Value=value; updateVis(value)
                     if tcfg.Callback then pcall(tcfg.Callback, value) end; DebouncedSave()
                 end
             end)
 
-            -- Hover on whole row (excluding switch/keybind areas)
             frame.MouseEnter:Connect(function() tw(frame, {BackgroundColor3=C.Hover}, 0.08) end)
             frame.MouseLeave:Connect(function() tw(frame, {BackgroundColor3=C.Surface}, 0.08) end)
 
@@ -482,7 +601,7 @@ function Library:CreateWindow(cfg)
             return toggle
         end
 
-        -- ========== SLIDER (with knob) ==========
+        -- ========== SLIDER ==========
         function target:CreateSlider(scfg)
             local range = scfg.Range or {0,100}
             local mn, mx = range[1], range[2]
@@ -491,7 +610,7 @@ function Library:CreateWindow(cfg)
             local value = math.clamp(scfg.CurrentValue or mn, mn, mx)
             local slider = {Value = value}
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,50), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,50), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=getWidgetParent()})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
             mk("TextLabel", {Text=scfg.Name or "Slider", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.6,0,0,20), Position=UDim2.fromOffset(8,5), Parent=frame})
@@ -502,7 +621,6 @@ function Library:CreateWindow(cfg)
             local fill = mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(pct,0,1,0), BorderSizePixel=0, Parent=track}); rc(fill,3)
             mk("UIGradient", {Color=ColorSequence.new(C.AccentDk, C.Accent), Parent=fill})
 
-            -- Circular knob
             local knob = mk("Frame", {BackgroundColor3=C.Knob, Size=UDim2.fromOffset(12,12), Position=UDim2.new(pct,-6,0.5,-6), BorderSizePixel=0, ZIndex=3, Parent=track}); rc(knob,6)
             local knobGlow = mk("Frame", {BackgroundColor3=C.Accent, BackgroundTransparency=0.55, Size=UDim2.fromOffset(18,18), Position=UDim2.new(pct,-9,0.5,-9), BorderSizePixel=0, ZIndex=2, Parent=track}); rc(knobGlow,9)
 
@@ -545,7 +663,7 @@ function Library:CreateWindow(cfg)
 
         -- ========== BUTTON ==========
         function target:CreateButton(bcfg)
-            local btn2 = mk("TextButton", {Text=bcfg.Name or "Button", TextColor3=C.Label, Font=F.Med, TextSize=17, BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,36), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=wNextOrder(), Parent=wContent})
+            local btn2 = mk("TextButton", {Text=bcfg.Name or "Button", TextColor3=C.Label, Font=F.Med, TextSize=17, BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,36), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=wNextOrder(), Parent=getWidgetParent()})
             rc(btn2, CORNER.Widget); st(btn2, C.WidgetBorder)
             btn2.MouseButton1Click:Connect(function()
                 tw(btn2, {BackgroundColor3=C.Accent}, 0.06)
@@ -564,7 +682,7 @@ function Library:CreateWindow(cfg)
             local isOpen = false
             local closedH, optH = 36, 30
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent})
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=getWidgetParent()})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
             mk("TextLabel", {Text=dcfg.Name or "Dropdown", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, ClipsDescendants=true, BackgroundTransparency=1, Size=UDim2.new(0.4,-4,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
@@ -595,17 +713,17 @@ function Library:CreateWindow(cfg)
 
         -- ========== INPUT ==========
         function target:CreateInput(icfg)
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,36), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,36), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=getWidgetParent()}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
             mk("TextLabel", {Text=icfg.Name or "Input", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.4,0,1,0), Position=UDim2.fromOffset(8,0), Parent=frame})
             local box = mk("TextBox", {Text="", PlaceholderText=icfg.PlaceholderText or "...", PlaceholderColor3=C.Dim, TextColor3=C.Text, Font=F.Reg, TextSize=13, BackgroundColor3=C.Bg, Size=UDim2.new(0.55,-8,0,24), Position=UDim2.new(0.45,0,0.5,-12), BorderSizePixel=0, ClearTextOnFocus=false, Parent=frame}); rc(box,CORNER.Small); pad(box,0,5,0,5)
             if icfg.Callback then box.FocusLost:Connect(function() pcall(icfg.Callback, box.Text); if icfg.RemoveTextAfterFocusLost then box.Text="" end end) end
         end
 
-        -- ========== KEYBIND (standalone) ==========
+        -- ========== KEYBIND ==========
         function target:CreateKeybind(kcfg)
             local currentKey = kcfg.CurrentKeybind or "F"
             local listening = false
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,36), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,36), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=getWidgetParent()}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
             mk("TextLabel", {Text=kcfg.Name or "Keybind", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-52,1,0), Position=UDim2.fromOffset(8,0), Parent=frame})
             local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.ValText, Font=F.Semi, TextSize=12, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(44,24), Position=UDim2.new(1,-50,0.5,-12), BorderSizePixel=0, AutoButtonColor=false, Parent=frame}); rc(keyBtn,CORNER.Small)
             keyBtn.MouseButton1Click:Connect(function()
@@ -633,14 +751,14 @@ function Library:CreateWindow(cfg)
         -- ========== LABEL ==========
         function target:CreateLabel(text)
             local label = {}
-            local lbl = mk("TextLabel", {Text=text or "", TextColor3=C.Dim, Font=F.Reg, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, BackgroundTransparency=1, Size=UDim2.new(1,-8,0,22), LayoutOrder=wNextOrder(), Parent=wContent}); pad(lbl,0,0,0,8)
+            local lbl = mk("TextLabel", {Text=text or "", TextColor3=C.Dim, Font=F.Reg, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, BackgroundTransparency=1, Size=UDim2.new(1,-8,0,22), LayoutOrder=wNextOrder(), Parent=getWidgetParent()}); pad(lbl,0,0,0,8)
             function label:Set(t) lbl.Text=t end; return label
         end
 
         -- ========== PARAGRAPH ==========
         function target:CreateParagraph(pcfg2)
             pcfg2 = pcfg2 or {}; local para = {}
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,58), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,58), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=getWidgetParent()}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
             mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,3,1,-8), Position=UDim2.fromOffset(4,4), BorderSizePixel=0, Parent=frame})
             local tLbl = mk("TextLabel", {Text=pcfg2.Title or "", TextColor3=C.Text, Font=F.Semi, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-18,0,20), Position=UDim2.fromOffset(14,5), Parent=frame})
             local cLbl = mk("TextLabel", {Text=pcfg2.Content or "", TextColor3=C.Dim, Font=F.Reg, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, TextYAlignment=Enum.TextYAlignment.Top, BackgroundTransparency=1, Size=UDim2.new(1,-18,0,28), Position=UDim2.fromOffset(14,26), Parent=frame})
@@ -658,7 +776,7 @@ function Library:CreateWindow(cfg)
             local value = ccfg.Default or Color3.fromRGB(130,87,230)
             local picker = {Value=value}; local pickerOpen=false; local closedH,openH=36,130
 
-            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
+            local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=getWidgetParent()}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
             mk("TextLabel", {Text=ccfg.Name or "Color", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-44,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
             local preview = mk("Frame", {BackgroundColor3=value, Size=UDim2.fromOffset(22,16), Position=UDim2.new(1,-30,0,10), BorderSizePixel=0, Parent=frame}); rc(preview,CORNER.Small); st(preview,C.Border)
             local previewBtn = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,0,0,closedH), ZIndex=2, AutoButtonColor=false, Parent=frame})
@@ -693,15 +811,15 @@ function Library:CreateWindow(cfg)
             return picker
         end
 
-        -- ========== DUAL PANE (two-column layout) ==========
+        -- ========== DUAL PANE ==========
         function target:CreateDualPane()
             local pane = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,100), LayoutOrder=wNextOrder(), Parent=wContent})
 
             local leftCol = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(0.5,-3,0,0), Position=UDim2.fromOffset(0,0), Parent=pane})
-            local leftLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,2), Parent=leftCol})
+            local leftLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,3), Parent=leftCol})
 
             local rightCol = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(0.5,-3,0,0), Position=UDim2.new(0.5,3,0,0), Parent=pane})
-            local rightLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,2), Parent=rightCol})
+            local rightLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,3), Parent=rightCol})
 
             local function updateHeight()
                 local lh = leftLayout.AbsoluteContentSize.Y
@@ -721,16 +839,8 @@ function Library:CreateWindow(cfg)
         end
     end -- end attachWidgets
 
-    -- ==================== CREATE TAB ====================
-    function Window:CreateTab(tabArg)
-        local tabName, tabIcon
-        if type(tabArg)=="table" then tabName=tabArg.Name or "Tab"; tabIcon=tabArg.Icon
-        else tabName=tostring(tabArg or "Tab"); tabIcon=nil end
-
-        local Tab = {}
-        local isFirst = #tabs==0
-
-        -- Hex image tab button (actual hex shape via image)
+    -- ==================== HELPER: create hex button ====================
+    local function createHexButton(tabName, tabIcon, isFirst, parent)
         local hexBtn = mk("ImageButton", {
             Image = HEX_IMG,
             ImageColor3 = isFirst and C.Accent or C.Dim,
@@ -739,10 +849,9 @@ function Library:CreateWindow(cfg)
             Position = UDim2.fromOffset(0, 0),
             ScaleType = Enum.ScaleType.Stretch,
             AutoButtonColor = false,
-            Parent = sidebar,
+            Parent = parent,
         })
 
-        -- Glow layer behind hex (purple aura when active)
         local hexGlow = mk("ImageLabel", {
             Image = HEX_IMG,
             ImageColor3 = C.Accent,
@@ -752,10 +861,9 @@ function Library:CreateWindow(cfg)
             Position = UDim2.fromOffset(0, 0),
             ScaleType = Enum.ScaleType.Stretch,
             ZIndex = 0,
-            Parent = sidebar,
+            Parent = parent,
         })
 
-        -- Icon on top of hex
         local iconImg, iconTxt
         local halfIcon = math.floor(HEX_ICON/2)
         if tabIcon and tabIcon ~= "" then
@@ -764,9 +872,23 @@ function Library:CreateWindow(cfg)
             iconTxt = mk("TextLabel", {Text="\226\154\153", TextColor3=isFirst and C.Text or C.Dim, Font=F.Bold, TextSize=math.floor(HEX_ICON*0.45), BackgroundTransparency=1, Size=UDim2.new(1,0,1,0), ZIndex=2, Parent=hexBtn})
         end
 
-        -- Content scroll
+        return hexBtn, hexGlow, iconImg, iconTxt
+    end
+
+    -- ==================== CREATE TAB ====================
+    function Window:CreateTab(tabArg)
+        local tabName, tabIcon
+        if type(tabArg)=="table" then tabName=tabArg.Name or "Tab"; tabIcon=tabArg.Icon
+        else tabName=tostring(tabArg or "Tab"); tabIcon=nil end
+
+        local Tab = {}
+        local isFirst = #tabs==0
+
+        local hexBtn, hexGlow, iconImg, iconTxt = createHexButton(tabName, tabIcon, isFirst, sidebar)
+
+        -- Content scroll (3px gap between section cards)
         local content = mk("ScrollingFrame", {Name=tabName, BackgroundTransparency=1, Size=UDim2.new(1,-12,1,-6), Position=UDim2.fromOffset(6,3), ScrollBarThickness=3, ScrollBarImageColor3=C.AccentDk, CanvasSize=UDim2.new(0,0,0,0), BorderSizePixel=0, Visible=isFirst, Parent=contentArea})
-        local cLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,2), Parent=content})
+        local cLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,3), Parent=content})
         cLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() content.CanvasSize=UDim2.new(0,0,0,cLayout.AbsoluteContentSize.Y+10) end)
 
         local tabData = {name=tabName, hex=hexBtn, glow=hexGlow, content=content, iconImg=iconImg, iconTxt=iconTxt}
@@ -775,7 +897,6 @@ function Library:CreateWindow(cfg)
         repositionHexes()
 
         hexBtn.MouseButton1Click:Connect(function() selectTab(tabName) end)
-        -- Hover: show purple ambient glow
         hexBtn.MouseEnter:Connect(function()
             if activeTab~=tabName then
                 tw(hexBtn,{ImageColor3=C.AccentH},0.1)
@@ -812,12 +933,11 @@ function Library:CreateWindow(cfg)
             local subBtn = mk("TextButton", {Text=subTabName, TextColor3=isFirstSub and C.Text or C.Dim, Font=F.Semi, TextSize=15, BackgroundTransparency=1, Size=UDim2.new(0,0,1,0), AutomaticSize=Enum.AutomaticSize.X, AutoButtonColor=false, LayoutOrder=#subTabs, Parent=subTabBar})
             pad(subBtn, 0,14,0,14)
 
-            -- Purple glow indicator
             local glowLine = mk("Frame", {BackgroundColor3=C.Accent, BackgroundTransparency=isFirstSub and 0.2 or 1, Size=UDim2.new(1,4,0,2), Position=UDim2.new(0,-2,1,-2), BorderSizePixel=0, Parent=subBtn}); rc(glowLine,1)
             local glowOuter = mk("Frame", {BackgroundColor3=C.Accent, BackgroundTransparency=isFirstSub and 0.75 or 1, Size=UDim2.new(1,12,0,6), Position=UDim2.new(0,-6,1,-4), BorderSizePixel=0, ZIndex=0, Parent=subBtn}); rc(glowOuter,3)
 
             local subContent = mk("ScrollingFrame", {Name=subTabName, BackgroundTransparency=1, Size=UDim2.new(1,0,1,-43), Position=UDim2.fromOffset(0,41), ScrollBarThickness=3, ScrollBarImageColor3=C.AccentDk, CanvasSize=UDim2.new(0,0,0,0), BorderSizePixel=0, Visible=isFirstSub, Parent=tabData.content})
-            local subLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,2), Parent=subContent})
+            local subLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,3), Parent=subContent})
             subLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() subContent.CanvasSize=UDim2.new(0,0,0,subLayout.AbsoluteContentSize.Y+10) end)
 
             table.insert(subTabs, {name=subTabName, button=subBtn, content=subContent, glow=glowLine, glowOuter=glowOuter})
@@ -850,9 +970,33 @@ function Library:CreateWindow(cfg)
         return Tab
     end
 
-    -- ==================== SETTINGS TAB ====================
+    -- ==================== SETTINGS TAB (pinned bottom) ====================
     if cfgEnabled then
-        local SettingsTab = Window:CreateTab({Name="Settings", Icon=cfg.SettingsIcon or ""})
+        -- Create the settings hex pinned at bottom (not in main tabs array)
+        local settingsIcon = cfg.SettingsIcon or ""
+        local sHex, sGlow, sIconImg, sIconTxt = createHexButton("Settings", settingsIcon, false, sidebar)
+
+        -- Settings content
+        local settingsContent = mk("ScrollingFrame", {Name="Settings", BackgroundTransparency=1, Size=UDim2.new(1,-12,1,-6), Position=UDim2.fromOffset(6,3), ScrollBarThickness=3, ScrollBarImageColor3=C.AccentDk, CanvasSize=UDim2.new(0,0,0,0), BorderSizePixel=0, Visible=false, Parent=contentArea})
+        local sLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,3), Parent=settingsContent})
+        sLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() settingsContent.CanvasSize=UDim2.new(0,0,0,sLayout.AbsoluteContentSize.Y+10) end)
+
+        settingsTabData = {name="Settings", hex=sHex, glow=sGlow, content=settingsContent, iconImg=sIconImg, iconTxt=sIconTxt}
+        repositionHexes()
+
+        sHex.MouseButton1Click:Connect(function() selectTab("Settings") end)
+        sHex.MouseEnter:Connect(function()
+            if activeTab~="Settings" then tw(sHex,{ImageColor3=C.AccentH},0.1); tw(sGlow,{ImageTransparency=0.65},0.15) end
+        end)
+        sHex.MouseLeave:Connect(function()
+            if activeTab~="Settings" then tw(sHex,{ImageColor3=C.Dim},0.1); tw(sGlow,{ImageTransparency=1},0.15) end
+        end)
+
+        -- Attach widgets to settings content
+        local SettingsTab = {}
+        attachWidgets(SettingsTab, settingsContent)
+
+        -- ---- Configuration Section ----
         SettingsTab:CreateSection("Configuration")
         local profileList=ListConfigs(); if #profileList==0 then profileList={cfgDefaultName} end
         local currentProfile=cfgDefaultName
@@ -861,9 +1005,87 @@ function Library:CreateWindow(cfg)
         SettingsTab:CreateButton({Name="Save Config", Callback=function() SaveConfig(currentProfile); Library:Notify({Title="Config",Content="Saved: "..currentProfile,Duration=2,Type="success"}) end})
         SettingsTab:CreateButton({Name="Delete Config", Callback=function() Window:Dialog({Title="Delete Profile",Content="Delete '"..currentProfile.."'?",Buttons={{Name="Delete",Callback=function() DeleteConfig(currentProfile); Library:Notify({Title="Config",Content="Deleted: "..currentProfile,Duration=2,Type="warning"}) end},{Name="Cancel",Callback=function() end}}}) end})
         SettingsTab:CreateInput({Name="New Profile", PlaceholderText="Profile name...", RemoveTextAfterFocusLost=true, Callback=function(text) if text and #text>0 then text=text:gsub("[^%w%-%_ ]",""); if #text>0 then SaveConfig(text); Library:Notify({Title="Config",Content="Created: "..text,Duration=2,Type="success"}) end end end})
+
+        -- ---- General Settings Section ----
         SettingsTab:CreateSection("Settings")
         SettingsTab:CreateToggle({Name="Auto-Save", Description="Save config on change", CurrentValue=true, Callback=function(v) cfgAutoSave=v end})
         SettingsTab:CreateParagraph({Title="Jitler Hub", Content=name.."\nRightControl to toggle UI.\nConfig: "..cfgFolder})
+
+        -- ---- UI Theme Section ----
+        SettingsTab:CreateSection("Theme")
+        SettingsTab:CreateDropdown({Name="Theme Preset", Options=ThemeNames, CurrentOption=UISettings.Theme, Flag="UITheme", Callback=function(v)
+            UISettings.Theme = v
+            local preset = Themes[v]
+            if preset then
+                C.Accent = preset.Accent; C.AccentH = preset.AccentH; C.AccentDk = preset.AccentDk
+                C.TogOn = preset.Accent; C.TogOnH = preset.AccentH
+            elseif v == "Custom Accent" then
+                C.Accent = UISettings.CustomAccent
+                local h,s,vv = UISettings.CustomAccent:ToHSV()
+                C.AccentH = Color3.fromHSV(h, math.max(s-0.15,0), math.min(vv+0.15,1))
+                C.AccentDk = Color3.fromHSV(h, math.min(s+0.1,1), math.max(vv-0.25,0))
+                C.TogOn = C.Accent; C.TogOnH = C.AccentH
+            end
+            SaveUISettings()
+        end})
+
+        SettingsTab:CreateColorPicker({Name="Custom Accent", Default=UISettings.CustomAccent, Flag="UICustomAccent", Callback=function(col)
+            UISettings.CustomAccent = col
+            if UISettings.Theme == "Custom Accent" then
+                C.Accent = col
+                local h,s,v = col:ToHSV()
+                C.AccentH = Color3.fromHSV(h, math.max(s-0.15,0), math.min(v+0.15,1))
+                C.AccentDk = Color3.fromHSV(h, math.min(s+0.1,1), math.max(v-0.25,0))
+                C.TogOn = C.Accent; C.TogOnH = C.AccentH
+            end
+            SaveUISettings()
+        end})
+
+        -- ---- Background Customization Section ----
+        SettingsTab:CreateSection("Background")
+        SettingsTab:CreateSlider({Name="Main Background Transparency", Range={0,0.9}, Increment=0.05, Suffix="", CurrentValue=UISettings.BgTransparency, Flag="UIBgTrans", Callback=function(v)
+            UISettings.BgTransparency = v; main.BackgroundTransparency = v; SaveUISettings()
+        end})
+        SettingsTab:CreateSlider({Name="Sidebar Transparency", Range={0,0.95}, Increment=0.05, Suffix="", CurrentValue=UISettings.SidebarTransparency, Flag="UISidebarTrans", Callback=function(v)
+            UISettings.SidebarTransparency = v; sidebar.BackgroundTransparency = v; SaveUISettings()
+        end})
+        SettingsTab:CreateSlider({Name="Card Transparency", Range={0,0.8}, Increment=0.05, Suffix="", CurrentValue=UISettings.CardTransparency, Flag="UICardTrans", Callback=function(v)
+            UISettings.CardTransparency = v; SaveUISettings()
+        end})
+
+        -- ---- UI Scale Section ----
+        SettingsTab:CreateSection("UI Scale")
+        SettingsTab:CreateSlider({Name="Global UI Scale", Range={0.5,1.5}, Increment=0.05, Suffix="x", CurrentValue=UISettings.GlobalScale, Flag="UIGlobalScale", Callback=function(v)
+            UISettings.GlobalScale = v; SaveUISettings()
+        end})
+        SettingsTab:CreateSlider({Name="Text Scale", Range={0.7,1.5}, Increment=0.05, Suffix="x", CurrentValue=UISettings.TextScale, Flag="UITextScale", Callback=function(v)
+            UISettings.TextScale = v; SaveUISettings()
+        end})
+        SettingsTab:CreateSlider({Name="Sidebar Icon Scale", Range={0.5,1.5}, Increment=0.05, Suffix="x", CurrentValue=UISettings.IconScale, Flag="UIIconScale", Callback=function(v)
+            UISettings.IconScale = v; SaveUISettings()
+        end})
+
+        -- ---- Visual Toggles Section ----
+        SettingsTab:CreateSection("Visual Options")
+        SettingsTab:CreateToggle({Name="Enable Glow", Description="Hex glow and accent auras", CurrentValue=UISettings.EnableGlow, Flag="UIGlow", Callback=function(v)
+            UISettings.EnableGlow = v; SaveUISettings()
+        end})
+        SettingsTab:CreateToggle({Name="Enable Shadow Depth", Description="Outer shadow layers", CurrentValue=UISettings.EnableShadow, Flag="UIShadow", Callback=function(v)
+            UISettings.EnableShadow = v
+            shadowGlow.Visible = v; shadowOuter.Visible = v; shadowMid.Visible = v
+            SaveUISettings()
+        end})
+        SettingsTab:CreateToggle({Name="Compact Mode", Description="Reduce padding and spacing", CurrentValue=UISettings.CompactMode, Flag="UICompact", Callback=function(v)
+            UISettings.CompactMode = v; SaveUISettings()
+        end})
+        SettingsTab:CreateToggle({Name="Rounded Mode", Description="Rounder corners on cards", CurrentValue=UISettings.RoundedMode, Flag="UIRounded", Callback=function(v)
+            UISettings.RoundedMode = v; SaveUISettings()
+        end})
+
+        -- ---- Save/Load UI Theme ----
+        SettingsTab:CreateSection("Theme Persistence")
+        SettingsTab:CreateButton({Name="Save UI Theme", Callback=function() SaveUISettings(); Library:Notify({Title="UI Theme",Content="Theme saved!",Duration=2,Type="success"}) end})
+        SettingsTab:CreateButton({Name="Load UI Theme", Callback=function() LoadUISettings(); Library:Notify({Title="UI Theme",Content="Theme loaded! Rejoin for full effect.",Duration=3,Type="info"}) end})
     end
 
     -- ==================== LOADING ====================
@@ -883,6 +1105,8 @@ function Library:CreateWindow(cfg)
         end)
     end
 
+    -- Load saved UI settings on startup
+    pcall(LoadUISettings)
     if cfgEnabled then task.delay(0.8, function() LoadConfig() end) end
     return Window
 end
