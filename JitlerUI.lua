@@ -10,31 +10,32 @@ local HttpSvc = game:GetService("HttpService")
 
 -- ==================== THEME ====================
 local C = {
-    Bg        = Color3.fromRGB(8, 8, 12),
-    BgOuter   = Color3.fromRGB(2, 2, 4),
-    Sidebar   = Color3.fromRGB(12, 12, 18),
-    Header    = Color3.fromRGB(10, 10, 16),
-    Surface   = Color3.fromRGB(18, 18, 26),
-    SurfaceAlt= Color3.fromRGB(24, 24, 34),
-    Hover     = Color3.fromRGB(28, 28, 40),
-    Accent    = Color3.fromRGB(130, 87, 230),
-    AccentH   = Color3.fromRGB(160, 120, 255),
-    AccentDk  = Color3.fromRGB(80, 50, 170),
-    Text      = Color3.fromRGB(228, 230, 240),
-    Dim       = Color3.fromRGB(100, 104, 130),
-    TogOff    = Color3.fromRGB(58, 60, 74),
-    TogOn     = Color3.fromRGB(130, 87, 230),
-    TogOnH    = Color3.fromRGB(155, 115, 250),
-    TogOffH   = Color3.fromRGB(72, 74, 88),
-    Border    = Color3.fromRGB(26, 26, 38),
-    SliderBg  = Color3.fromRGB(14, 14, 22),
+    Bg        = Color3.fromRGB(10, 6, 18),
+    BgOuter   = Color3.fromRGB(4, 2, 10),
+    Sidebar   = Color3.fromRGB(14, 8, 24),
+    Header    = Color3.fromRGB(12, 7, 22),
+    Surface   = Color3.fromRGB(20, 14, 32),
+    SurfaceAlt= Color3.fromRGB(28, 20, 42),
+    Hover     = Color3.fromRGB(34, 24, 52),
+    Accent    = Color3.fromRGB(138, 60, 255),
+    AccentH   = Color3.fromRGB(170, 100, 255),
+    AccentDk  = Color3.fromRGB(88, 36, 180),
+    Text      = Color3.fromRGB(230, 225, 245),
+    Dim       = Color3.fromRGB(110, 95, 140),
+    TogOff    = Color3.fromRGB(40, 28, 62),
+    TogOn     = Color3.fromRGB(138, 60, 255),
+    TogOnH    = Color3.fromRGB(165, 95, 255),
+    TogOffH   = Color3.fromRGB(55, 40, 78),
+    Border    = Color3.fromRGB(32, 20, 50),
+    SliderBg  = Color3.fromRGB(16, 10, 26),
     Green     = Color3.fromRGB(56, 198, 116),
     Red       = Color3.fromRGB(238, 56, 56),
     Yellow    = Color3.fromRGB(248, 198, 48),
-    WidgetBorder = Color3.fromRGB(22, 22, 34),
-    TabBg     = Color3.fromRGB(16, 16, 24),
-    TabActive = Color3.fromRGB(48, 30, 85),
-    Shadow    = Color3.fromRGB(0, 0, 0),
+    WidgetBorder = Color3.fromRGB(28, 18, 44),
+    TabBg     = Color3.fromRGB(16, 10, 26),
+    TabActive = Color3.fromRGB(52, 28, 90),
+    Shadow    = Color3.fromRGB(4, 0, 10),
+    Knob      = Color3.fromRGB(210, 195, 240),
 }
 local F = {
     Bold = Enum.Font.GothamBold,
@@ -165,9 +166,10 @@ function Library:CreateWindow(cfg)
     -- Outer shadow wrapper
     local mainWrapper = mk("Frame", {Name="MainWrapper", BackgroundTransparency=1, Size=UDim2.fromOffset(WIN_W+16, WIN_H+16), Position=UDim2.new(0.5,-math.floor((WIN_W+16)/2),0.5,-math.floor((WIN_H+16)/2)), ClipsDescendants=false, Visible=not hasLoading, Parent=sg})
 
-    -- Multi-layer shadow behind main frame
-    local shadowOuter = mk("Frame", {BackgroundColor3=C.Shadow, BackgroundTransparency=0.70, Size=UDim2.new(1,8,1,8), Position=UDim2.fromOffset(-4,-2), BorderSizePixel=0, ZIndex=0, Parent=mainWrapper}); rc(shadowOuter, CORNER.Main+6)
-    local shadowMid = mk("Frame", {BackgroundColor3=C.Shadow, BackgroundTransparency=0.50, Size=UDim2.new(1,2,1,2), Position=UDim2.fromOffset(-1,0), BorderSizePixel=0, ZIndex=0, Parent=mainWrapper}); rc(shadowMid, CORNER.Main+3)
+    -- Multi-layer shadow behind main frame (soft purple outer glow)
+    local shadowGlow = mk("Frame", {BackgroundColor3=C.AccentDk, BackgroundTransparency=0.82, Size=UDim2.new(1,18,1,18), Position=UDim2.fromOffset(-9,-7), BorderSizePixel=0, ZIndex=0, Parent=mainWrapper}); rc(shadowGlow, CORNER.Main+10)
+    local shadowOuter = mk("Frame", {BackgroundColor3=C.Shadow, BackgroundTransparency=0.65, Size=UDim2.new(1,8,1,8), Position=UDim2.fromOffset(-4,-2), BorderSizePixel=0, ZIndex=0, Parent=mainWrapper}); rc(shadowOuter, CORNER.Main+6)
+    local shadowMid = mk("Frame", {BackgroundColor3=C.Shadow, BackgroundTransparency=0.45, Size=UDim2.new(1,2,1,2), Position=UDim2.fromOffset(-1,0), BorderSizePixel=0, ZIndex=0, Parent=mainWrapper}); rc(shadowMid, CORNER.Main+3)
 
     local main = mk("Frame", {Name="Main", BackgroundColor3=C.Bg, Size=UDim2.fromOffset(WIN_W, WIN_H), Position=UDim2.fromOffset(8, 8), BorderSizePixel=0, ClipsDescendants=false, Parent=mainWrapper})
     rc(main, CORNER.Main)
@@ -372,7 +374,7 @@ function Library:CreateWindow(cfg)
             if hasDesc then mk("TextLabel", {Text=tcfg.Description, TextColor3=C.Dim, Font=F.Reg, TextSize=10, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-56,0,12), Position=UDim2.fromOffset(8,20), Parent=frame}) end
 
             local swBg = mk("Frame", {BackgroundColor3=value and C.TogOn or C.TogOff, Size=UDim2.fromOffset(34,18), Position=UDim2.new(1,-42,0.5,-9), BorderSizePixel=0, Parent=frame}); rc(swBg,CORNER.Pill)
-            local circle = mk("Frame", {BackgroundColor3=C.Text, Size=UDim2.fromOffset(14,14), Position=value and UDim2.fromOffset(18,2) or UDim2.fromOffset(2,2), BorderSizePixel=0, Parent=swBg}); rc(circle,7)
+            local circle = mk("Frame", {BackgroundColor3=C.Knob, Size=UDim2.fromOffset(14,14), Position=value and UDim2.fromOffset(18,2) or UDim2.fromOffset(2,2), BorderSizePixel=0, Parent=swBg}); rc(circle,7)
 
             local function updateVis(v)
                 tw(swBg, {BackgroundColor3=v and C.TogOn or C.TogOff}, 0.15)
@@ -413,7 +415,7 @@ function Library:CreateWindow(cfg)
 
             -- Toggle switch (far right)
             local swBg = mk("Frame", {BackgroundColor3=value and C.TogOn or C.TogOff, Size=UDim2.fromOffset(34,18), Position=UDim2.new(1,-42,0.5,-9), BorderSizePixel=0, ZIndex=2, Parent=frame}); rc(swBg,CORNER.Pill)
-            local circle = mk("Frame", {BackgroundColor3=C.Text, Size=UDim2.fromOffset(14,14), Position=value and UDim2.fromOffset(18,2) or UDim2.fromOffset(2,2), BorderSizePixel=0, ZIndex=3, Parent=swBg}); rc(circle,7)
+            local circle = mk("Frame", {BackgroundColor3=C.Knob, Size=UDim2.fromOffset(14,14), Position=value and UDim2.fromOffset(18,2) or UDim2.fromOffset(2,2), BorderSizePixel=0, ZIndex=3, Parent=swBg}); rc(circle,7)
 
             -- Keybind button (next to toggle, to its left)
             local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.AccentH, Font=F.Semi, TextSize=10, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(38,20), Position=UDim2.new(1,-86,0.5,-10), BorderSizePixel=0, AutoButtonColor=false, ZIndex=2, Parent=frame}); rc(keyBtn,CORNER.Small)
@@ -487,7 +489,7 @@ function Library:CreateWindow(cfg)
             mk("UIGradient", {Color=ColorSequence.new(C.AccentDk, C.Accent), Parent=fill})
 
             -- Circular knob
-            local knob = mk("Frame", {BackgroundColor3=C.Text, Size=UDim2.fromOffset(12,12), Position=UDim2.new(pct,-6,0.5,-6), BorderSizePixel=0, ZIndex=3, Parent=track}); rc(knob,6)
+            local knob = mk("Frame", {BackgroundColor3=C.Knob, Size=UDim2.fromOffset(12,12), Position=UDim2.new(pct,-6,0.5,-6), BorderSizePixel=0, ZIndex=3, Parent=track}); rc(knob,6)
             local knobGlow = mk("Frame", {BackgroundColor3=C.Accent, BackgroundTransparency=0.55, Size=UDim2.fromOffset(18,18), Position=UDim2.new(pct,-9,0.5,-9), BorderSizePixel=0, ZIndex=2, Parent=track}); rc(knobGlow,9)
 
             local function updateSlider(v)
