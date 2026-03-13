@@ -1,5 +1,5 @@
--- JitlerUI.lua v6.1 — Premium Exploit Hub UI Library
--- Adaptive hex spacing, premium typography overhaul, dense 4/6/8 spacing
+-- JitlerUI.lua v6.2 — Premium Exploit Hub UI Library
+-- Smaller hex tabs, bold zigzag, 2px widget gap, dropdown text clipping
 
 local Library = {}
 local TweenService = game:GetService("TweenService")
@@ -337,7 +337,7 @@ function Library:CreateWindow(cfg)
 
     -- Hex tab positioning: adaptive vertical spacing
     local HEX_IMG = "rbxassetid://14482391301"
-    local HEX_W = math.floor(SIDEBAR_W / 0.4)
+    local HEX_W = math.floor(SIDEBAR_W / 0.5)
     local HEX_X = -math.floor(0.5 * HEX_W)
     local HEX_ICON = math.floor(HEX_W * 0.45)
     local HEX_GLOW_PAD = 14
@@ -353,7 +353,7 @@ function Library:CreateWindow(cfg)
         local startY = math.floor((WIN_H - totalUsed) / 2)
         for i, t in ipairs(tabs) do
             local idx = i - 1
-            local zigzag = (idx % 2 == 0) and 5 or -3
+            local zigzag = (idx % 2 == 0) and 14 or -6
             local x = HEX_X + zigzag
             local y = startY + idx * spacing
             t.hex.Position = UDim2.fromOffset(x, y)
@@ -567,8 +567,8 @@ function Library:CreateWindow(cfg)
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
-            mk("TextLabel", {Text=dcfg.Name or "Dropdown", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.5,0,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
-            local selLbl = mk("TextLabel", {Text=current.." \226\150\190", TextColor3=C.ValText, Font=F.Semi, TextSize=15, TextXAlignment=Enum.TextXAlignment.Right, BackgroundTransparency=1, Size=UDim2.new(0.5,-10,0,closedH), Position=UDim2.new(0.5,0,0,0), Parent=frame})
+            mk("TextLabel", {Text=dcfg.Name or "Dropdown", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, ClipsDescendants=true, BackgroundTransparency=1, Size=UDim2.new(0.4,-4,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
+            local selLbl = mk("TextLabel", {Text=current.." \226\150\190", TextColor3=C.ValText, Font=F.Semi, TextSize=15, TextXAlignment=Enum.TextXAlignment.Right, TextTruncate=Enum.TextTruncate.AtEnd, ClipsDescendants=true, BackgroundTransparency=1, Size=UDim2.new(0.6,-18,0,closedH), Position=UDim2.new(0.4,4,0,0), Parent=frame})
 
             local toggleBtn2 = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,0,0,closedH), ZIndex=2, AutoButtonColor=false, Parent=frame})
             local optC = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,-6,0,#options*optH), Position=UDim2.new(0,3,0,closedH+2), Parent=frame})
@@ -698,10 +698,10 @@ function Library:CreateWindow(cfg)
             local pane = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,100), LayoutOrder=wNextOrder(), Parent=wContent})
 
             local leftCol = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(0.5,-3,0,0), Position=UDim2.fromOffset(0,0), Parent=pane})
-            local leftLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,4), Parent=leftCol})
+            local leftLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,2), Parent=leftCol})
 
             local rightCol = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(0.5,-3,0,0), Position=UDim2.new(0.5,3,0,0), Parent=pane})
-            local rightLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,4), Parent=rightCol})
+            local rightLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,2), Parent=rightCol})
 
             local function updateHeight()
                 local lh = leftLayout.AbsoluteContentSize.Y
@@ -766,7 +766,7 @@ function Library:CreateWindow(cfg)
 
         -- Content scroll
         local content = mk("ScrollingFrame", {Name=tabName, BackgroundTransparency=1, Size=UDim2.new(1,-12,1,-6), Position=UDim2.fromOffset(6,3), ScrollBarThickness=3, ScrollBarImageColor3=C.AccentDk, CanvasSize=UDim2.new(0,0,0,0), BorderSizePixel=0, Visible=isFirst, Parent=contentArea})
-        local cLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,4), Parent=content})
+        local cLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,2), Parent=content})
         cLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() content.CanvasSize=UDim2.new(0,0,0,cLayout.AbsoluteContentSize.Y+10) end)
 
         local tabData = {name=tabName, hex=hexBtn, glow=hexGlow, content=content, iconImg=iconImg, iconTxt=iconTxt}
@@ -817,7 +817,7 @@ function Library:CreateWindow(cfg)
             local glowOuter = mk("Frame", {BackgroundColor3=C.Accent, BackgroundTransparency=isFirstSub and 0.75 or 1, Size=UDim2.new(1,12,0,6), Position=UDim2.new(0,-6,1,-4), BorderSizePixel=0, ZIndex=0, Parent=subBtn}); rc(glowOuter,3)
 
             local subContent = mk("ScrollingFrame", {Name=subTabName, BackgroundTransparency=1, Size=UDim2.new(1,0,1,-43), Position=UDim2.fromOffset(0,41), ScrollBarThickness=3, ScrollBarImageColor3=C.AccentDk, CanvasSize=UDim2.new(0,0,0,0), BorderSizePixel=0, Visible=isFirstSub, Parent=tabData.content})
-            local subLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,4), Parent=subContent})
+            local subLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,2), Parent=subContent})
             subLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() subContent.CanvasSize=UDim2.new(0,0,0,subLayout.AbsoluteContentSize.Y+10) end)
 
             table.insert(subTabs, {name=subTabName, button=subBtn, content=subContent, glow=glowLine, glowOuter=glowOuter})
