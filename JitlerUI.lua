@@ -21,7 +21,9 @@ local C = {
     AccentH   = Color3.fromRGB(170, 100, 255),
     AccentDk  = Color3.fromRGB(88, 36, 180),
     Text      = Color3.fromRGB(230, 225, 245),
-    Dim       = Color3.fromRGB(110, 95, 140),
+    Label     = Color3.fromRGB(185, 178, 205),
+    Dim       = Color3.fromRGB(90, 78, 120),
+    ValText   = Color3.fromRGB(240, 236, 255),
     TogOff    = Color3.fromRGB(40, 28, 62),
     TogOn     = Color3.fromRGB(138, 60, 255),
     TogOnH    = Color3.fromRGB(165, 95, 255),
@@ -356,7 +358,7 @@ function Library:CreateWindow(cfg)
         function target:CreateSection(sectionName)
             local sec = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,0,0,24), LayoutOrder=wNextOrder(), Parent=wContent})
             mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,3,0,14), Position=UDim2.fromOffset(0,5), BorderSizePixel=0, Parent=sec})
-            mk("TextLabel", {Text=sectionName, TextColor3=C.AccentH, Font=F.Semi, TextSize=11, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-12,1,0), Position=UDim2.fromOffset(9,0), Parent=sec})
+            mk("TextLabel", {Text=sectionName, TextColor3=C.AccentH, Font=F.Bold, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-12,1,0), Position=UDim2.fromOffset(9,0), Parent=sec})
             mk("Frame", {BackgroundColor3=C.Border, BackgroundTransparency=0.5, Size=UDim2.new(0.5,0,0,1), Position=UDim2.new(0.5,0,0.5,0), BorderSizePixel=0, Parent=sec})
         end
 
@@ -370,7 +372,7 @@ function Library:CreateWindow(cfg)
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,frameH), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
-            mk("TextLabel", {Text=tcfg.Name or "Toggle", TextColor3=C.Text, Font=F.Med, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-56,0,16), Position=UDim2.fromOffset(8, hasDesc and 4 or 7), Parent=frame})
+            mk("TextLabel", {Text=tcfg.Name or "Toggle", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-56,0,16), Position=UDim2.fromOffset(8, hasDesc and 4 or 7), Parent=frame})
             if hasDesc then mk("TextLabel", {Text=tcfg.Description, TextColor3=C.Dim, Font=F.Reg, TextSize=10, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-56,0,12), Position=UDim2.fromOffset(8,20), Parent=frame}) end
 
             local swBg = mk("Frame", {BackgroundColor3=value and C.TogOn or C.TogOff, Size=UDim2.fromOffset(34,18), Position=UDim2.new(1,-42,0.5,-9), BorderSizePixel=0, Parent=frame}); rc(swBg,CORNER.Pill)
@@ -410,7 +412,7 @@ function Library:CreateWindow(cfg)
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
             -- Label (left)
-            mk("TextLabel", {Text=tcfg.Name or "Toggle", TextColor3=C.Text, Font=F.Med, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-100,0,16), Position=UDim2.fromOffset(8, hasDesc and 4 or 7), Parent=frame})
+            mk("TextLabel", {Text=tcfg.Name or "Toggle", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-100,0,16), Position=UDim2.fromOffset(8, hasDesc and 4 or 7), Parent=frame})
             if hasDesc then mk("TextLabel", {Text=tcfg.Description, TextColor3=C.Dim, Font=F.Reg, TextSize=10, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-100,0,12), Position=UDim2.fromOffset(8,20), Parent=frame}) end
 
             -- Toggle switch (far right)
@@ -418,7 +420,7 @@ function Library:CreateWindow(cfg)
             local circle = mk("Frame", {BackgroundColor3=C.Knob, Size=UDim2.fromOffset(14,14), Position=value and UDim2.fromOffset(18,2) or UDim2.fromOffset(2,2), BorderSizePixel=0, ZIndex=3, Parent=swBg}); rc(circle,7)
 
             -- Keybind button (next to toggle, to its left)
-            local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.AccentH, Font=F.Semi, TextSize=10, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(38,20), Position=UDim2.new(1,-86,0.5,-10), BorderSizePixel=0, AutoButtonColor=false, ZIndex=2, Parent=frame}); rc(keyBtn,CORNER.Small)
+            local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.ValText, Font=F.Semi, TextSize=10, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(38,20), Position=UDim2.new(1,-86,0.5,-10), BorderSizePixel=0, AutoButtonColor=false, ZIndex=2, Parent=frame}); rc(keyBtn,CORNER.Small)
 
             local function updateVis(v)
                 tw(swBg, {BackgroundColor3=v and C.TogOn or C.TogOff}, 0.15)
@@ -480,8 +482,8 @@ function Library:CreateWindow(cfg)
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,44), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
-            mk("TextLabel", {Text=scfg.Name or "Slider", TextColor3=C.Text, Font=F.Med, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.6,0,0,16), Position=UDim2.fromOffset(8,4), Parent=frame})
-            local valLbl = mk("TextLabel", {Text=tostring(value)..suffix, TextColor3=C.AccentH, Font=F.Semi, TextSize=11, TextXAlignment=Enum.TextXAlignment.Right, BackgroundTransparency=1, Size=UDim2.new(0.4,-12,0,16), Position=UDim2.new(0.6,0,0,4), Parent=frame})
+            mk("TextLabel", {Text=scfg.Name or "Slider", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.6,0,0,16), Position=UDim2.fromOffset(8,4), Parent=frame})
+            local valLbl = mk("TextLabel", {Text=tostring(value)..suffix, TextColor3=C.ValText, Font=F.Semi, TextSize=12, TextXAlignment=Enum.TextXAlignment.Right, BackgroundTransparency=1, Size=UDim2.new(0.4,-12,0,16), Position=UDim2.new(0.6,0,0,4), Parent=frame})
 
             local track = mk("Frame", {BackgroundColor3=C.SliderBg, Size=UDim2.new(1,-16,0,5), Position=UDim2.new(0,8,0,28), BorderSizePixel=0, Parent=frame}); rc(track,3)
             local pct = (value-mn)/math.max(mx-mn,0.001)
@@ -531,7 +533,7 @@ function Library:CreateWindow(cfg)
 
         -- ========== BUTTON ==========
         function target:CreateButton(bcfg)
-            local btn2 = mk("TextButton", {Text=bcfg.Name or "Button", TextColor3=C.Text, Font=F.Med, TextSize=12, BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,30), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=wNextOrder(), Parent=wContent})
+            local btn2 = mk("TextButton", {Text=bcfg.Name or "Button", TextColor3=C.Label, Font=F.Med, TextSize=13, BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,30), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(btn2, CORNER.Widget); st(btn2, C.WidgetBorder)
             btn2.MouseButton1Click:Connect(function()
                 tw(btn2, {BackgroundColor3=C.Accent}, 0.06)
@@ -553,8 +555,8 @@ function Library:CreateWindow(cfg)
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent})
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
-            mk("TextLabel", {Text=dcfg.Name or "Dropdown", TextColor3=C.Text, Font=F.Med, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.5,0,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
-            local selLbl = mk("TextLabel", {Text=current.." \226\150\190", TextColor3=C.AccentH, Font=F.Semi, TextSize=11, TextXAlignment=Enum.TextXAlignment.Right, BackgroundTransparency=1, Size=UDim2.new(0.5,-10,0,closedH), Position=UDim2.new(0.5,0,0,0), Parent=frame})
+            mk("TextLabel", {Text=dcfg.Name or "Dropdown", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.5,0,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
+            local selLbl = mk("TextLabel", {Text=current.." \226\150\190", TextColor3=C.ValText, Font=F.Semi, TextSize=12, TextXAlignment=Enum.TextXAlignment.Right, BackgroundTransparency=1, Size=UDim2.new(0.5,-10,0,closedH), Position=UDim2.new(0.5,0,0,0), Parent=frame})
 
             local toggleBtn2 = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,0,0,closedH), ZIndex=2, AutoButtonColor=false, Parent=frame})
             local optC = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,-6,0,#options*optH), Position=UDim2.new(0,3,0,closedH+2), Parent=frame})
@@ -582,7 +584,7 @@ function Library:CreateWindow(cfg)
         -- ========== INPUT ==========
         function target:CreateInput(icfg)
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,30), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
-            mk("TextLabel", {Text=icfg.Name or "Input", TextColor3=C.Text, Font=F.Med, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.4,0,1,0), Position=UDim2.fromOffset(8,0), Parent=frame})
+            mk("TextLabel", {Text=icfg.Name or "Input", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(0.4,0,1,0), Position=UDim2.fromOffset(8,0), Parent=frame})
             local box = mk("TextBox", {Text="", PlaceholderText=icfg.PlaceholderText or "...", PlaceholderColor3=C.Dim, TextColor3=C.Text, Font=F.Reg, TextSize=11, BackgroundColor3=C.Bg, Size=UDim2.new(0.55,-8,0,22), Position=UDim2.new(0.45,0,0.5,-11), BorderSizePixel=0, ClearTextOnFocus=false, Parent=frame}); rc(box,CORNER.Small); pad(box,0,5,0,5)
             if icfg.Callback then box.FocusLost:Connect(function() pcall(icfg.Callback, box.Text); if icfg.RemoveTextAfterFocusLost then box.Text="" end end) end
         end
@@ -592,8 +594,8 @@ function Library:CreateWindow(cfg)
             local currentKey = kcfg.CurrentKeybind or "F"
             local listening = false
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,30), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
-            mk("TextLabel", {Text=kcfg.Name or "Keybind", TextColor3=C.Text, Font=F.Med, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-52,1,0), Position=UDim2.fromOffset(8,0), Parent=frame})
-            local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.AccentH, Font=F.Semi, TextSize=11, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(40,22), Position=UDim2.new(1,-46,0.5,-11), BorderSizePixel=0, AutoButtonColor=false, Parent=frame}); rc(keyBtn,CORNER.Small)
+            mk("TextLabel", {Text=kcfg.Name or "Keybind", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-52,1,0), Position=UDim2.fromOffset(8,0), Parent=frame})
+            local keyBtn = mk("TextButton", {Text="["..currentKey.."]", TextColor3=C.ValText, Font=F.Semi, TextSize=11, BackgroundColor3=C.Bg, Size=UDim2.fromOffset(40,22), Position=UDim2.new(1,-46,0.5,-11), BorderSizePixel=0, AutoButtonColor=false, Parent=frame}); rc(keyBtn,CORNER.Small)
             keyBtn.MouseButton1Click:Connect(function()
                 if listening then return end; listening=true; keyBtn.Text="[...]"; tw(keyBtn,{BackgroundColor3=C.AccentDk},0.1)
             end)
@@ -628,7 +630,7 @@ function Library:CreateWindow(cfg)
             pcfg2 = pcfg2 or {}; local para = {}
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,52), BorderSizePixel=0, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
             mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(0,3,1,-8), Position=UDim2.fromOffset(4,4), BorderSizePixel=0, Parent=frame})
-            local tLbl = mk("TextLabel", {Text=pcfg2.Title or "", TextColor3=C.Text, Font=F.Bold, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-18,0,16), Position=UDim2.fromOffset(14,5), Parent=frame})
+            local tLbl = mk("TextLabel", {Text=pcfg2.Title or "", TextColor3=C.Text, Font=F.Semi, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-18,0,16), Position=UDim2.fromOffset(14,5), Parent=frame})
             local cLbl = mk("TextLabel", {Text=pcfg2.Content or "", TextColor3=C.Dim, Font=F.Reg, TextSize=10, TextXAlignment=Enum.TextXAlignment.Left, TextWrapped=true, TextYAlignment=Enum.TextYAlignment.Top, BackgroundTransparency=1, Size=UDim2.new(1,-18,0,26), Position=UDim2.fromOffset(14,22), Parent=frame})
             local function resize()
                 local ts=game:GetService("TextService")
@@ -645,7 +647,7 @@ function Library:CreateWindow(cfg)
             local picker = {Value=value}; local pickerOpen=false; local closedH,openH=30,118
 
             local frame = mk("Frame", {BackgroundColor3=C.Surface, Size=UDim2.new(1,0,0,closedH), BorderSizePixel=0, ClipsDescendants=true, LayoutOrder=wNextOrder(), Parent=wContent}); rc(frame,CORNER.Widget); st(frame,C.WidgetBorder)
-            mk("TextLabel", {Text=ccfg.Name or "Color", TextColor3=C.Text, Font=F.Med, TextSize=12, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-44,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
+            mk("TextLabel", {Text=ccfg.Name or "Color", TextColor3=C.Label, Font=F.Med, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundTransparency=1, Size=UDim2.new(1,-44,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
             local preview = mk("Frame", {BackgroundColor3=value, Size=UDim2.fromOffset(22,16), Position=UDim2.new(1,-30,0,7), BorderSizePixel=0, Parent=frame}); rc(preview,CORNER.Small); st(preview,C.Border)
             local previewBtn = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,0,0,closedH), ZIndex=2, AutoButtonColor=false, Parent=frame})
 
@@ -663,7 +665,7 @@ function Library:CreateWindow(cfg)
                 mk("TextLabel", {Text=chName, TextColor3=C.Dim, Font=F.Semi, TextSize=10, BackgroundTransparency=1, Size=UDim2.fromOffset(14,18), Position=UDim2.fromOffset(8,yOff+1), Parent=frame})
                 local chTrack = mk("Frame", {BackgroundColor3=C.SliderBg, Size=UDim2.new(1,-52,0,5), Position=UDim2.new(0,26,0,yOff+7), BorderSizePixel=0, Parent=frame}); rc(chTrack,3)
                 local chFill = mk("Frame", {BackgroundColor3=C.Accent, Size=UDim2.new(getV(),0,1,0), BorderSizePixel=0, Parent=chTrack}); rc(chFill,3)
-                local chVal = mk("TextLabel", {Text=tostring(math.floor(getV()*255)), TextColor3=C.AccentH, Font=F.Semi, TextSize=9, BackgroundTransparency=1, Size=UDim2.fromOffset(22,18), Position=UDim2.new(1,-24,0,yOff), TextXAlignment=Enum.TextXAlignment.Right, Parent=frame})
+                local chVal = mk("TextLabel", {Text=tostring(math.floor(getV()*255)), TextColor3=C.ValText, Font=F.Semi, TextSize=9, BackgroundTransparency=1, Size=UDim2.fromOffset(22,18), Position=UDim2.new(1,-24,0,yOff), TextXAlignment=Enum.TextXAlignment.Right, Parent=frame})
                 local chSliding=false
                 local chHit = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,-52,0,18), Position=UDim2.new(0,26,0,yOff), AutoButtonColor=false, Parent=frame})
                 chHit.InputBegan:Connect(function(input) if input.UserInputType==Enum.UserInputType.MouseButton1 then chSliding=true; local p=math.clamp((input.Position.X-chTrack.AbsolutePosition.X)/math.max(chTrack.AbsoluteSize.X,1),0,1); setV(p); chFill.Size=UDim2.new(p,0,1,0); chVal.Text=tostring(math.floor(p*255)); updateColor() end end)
