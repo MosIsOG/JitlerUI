@@ -339,7 +339,7 @@ function Library:CreateWindow(cfg)
     local HEX_IMG = "rbxassetid://14482391301"
     local HEX_W = math.floor(SIDEBAR_W / 0.4)
     local HEX_X = -math.floor(0.5 * HEX_W)
-    local HEX_ICON = math.floor(HEX_W * 0.45)
+    local HEX_ICON = math.floor(HEX_W * 0.30)
     local HEX_START_Y = 10
     local HEX_SPACING = HEX_W
     local HEX_GLOW_PAD = 14
