@@ -265,8 +265,16 @@ function Library:CreateWindow(cfg)
     local cfgEnabled = cfgSave.Enabled == true
     local cfgFolder = cfgSave.FolderName or "JitlerHub"
     local cfgDefaultName = cfgSave.FileName or "Default"
-    local cfgAutoSave = true
+    local cfgAutoSave = false
     local _saveThread = nil
+    local cfgAutoLoad = false
+    local function GetAutoLoadPath() return cfgFolder.."/autoload.txt" end
+    local function SaveAutoLoadPref()
+        if typeof(writefile)~="function" then return end
+        _makefolder(cfgFolder)
+        if cfgAutoLoad then _writefile(GetAutoLoadPath(), cfgDefaultName) else pcall(function() if _isfile(GetAutoLoadPath()) then _delfile(GetAutoLoadPath()) end end) end
+    end
+    pcall(function() if _isfile(GetAutoLoadPath()) then cfgAutoLoad = true end end)
 
     local function GetConfigPath(pn) return cfgFolder.."/"..(pn or cfgDefaultName)..".json" end
     local function SaveConfig(pn)
@@ -1008,7 +1016,8 @@ function Library:CreateWindow(cfg)
 
         -- ---- General Settings Section ----
         SettingsTab:CreateSection("Settings")
-        SettingsTab:CreateToggle({Name="Auto-Save", Description="Save config on change", CurrentValue=true, Callback=function(v) cfgAutoSave=v end})
+        SettingsTab:CreateToggle({Name="Auto-Save", Description="Save config on change", CurrentValue=cfgAutoSave, Callback=function(v) cfgAutoSave=v end})
+        SettingsTab:CreateToggle({Name="Auto-Load Config", Description="Automatically load default config on startup", CurrentValue=cfgAutoLoad, Callback=function(v) cfgAutoLoad=v; SaveAutoLoadPref() end})
         SettingsTab:CreateParagraph({Title="Jitler Hub", Content=name.."\nRightControl to toggle UI.\nConfig: "..cfgFolder})
 
         -- ---- UI Theme Section ----
@@ -1107,7 +1116,7 @@ function Library:CreateWindow(cfg)
 
     -- Load saved UI settings on startup
     pcall(LoadUISettings)
-    if cfgEnabled then task.delay(0.8, function() LoadConfig() end) end
+    if cfgEnabled and cfgAutoLoad then task.delay(0.8, function() LoadConfig() end) end
     return Window
 end
 
