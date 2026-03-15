@@ -743,11 +743,11 @@ function Library:CreateWindow(cfg)
                 DebouncedSave()
             end
 
+            local optionButtons = {}
+
             local function updateAllOptionVisuals()
-                for _, child in ipairs(optC:GetChildren()) do
-                    if child:IsA("TextButton") and child._optionValue then
-                        child.BackgroundColor3 = selected[tostring(child._optionValue)] and C.AccentDk or C.Bg
-                    end
+                for key, btn in pairs(optionButtons) do
+                    btn.BackgroundColor3 = selected[key] and C.AccentDk or C.Bg
                 end
             end
 
@@ -779,9 +779,11 @@ function Library:CreateWindow(cfg)
                     if child:IsA("TextButton") then child:Destroy() end
                 end
 
+                optionButtons = {}
+
                 for i, opt in ipairs(options) do
                     local ob = mk("TextButton", {Text="  "..formatOption(opt), TextColor3=C.Text, Font=F.Reg, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundColor3=C.Bg, Size=UDim2.new(1,0,0,optH), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=i, Parent=optC})
-                    ob._optionValue = opt
+                    optionButtons[tostring(opt)] = ob
                     rc(ob, CORNER.Small)
 
                     local function updateOptionVisual()
