@@ -685,7 +685,8 @@ function Library:CreateWindow(cfg)
         -- ========== DROPDOWN ==========
         function target:CreateDropdown(dcfg)
             local options = dcfg.Options or {}
-            local current = dcfg.CurrentOption or (options[1] or "")
+            local isMulti = dcfg.MultiSelection == true
+            local current = dcfg.CurrentOption or (isMulti and {} or (options[1] or ""))
             local dropdown = {Value=current}
             local isOpen = false
             local closedH, optH = 36, 30
@@ -694,28 +695,165 @@ function Library:CreateWindow(cfg)
             rc(frame, CORNER.Widget); st(frame, C.WidgetBorder)
 
             mk("TextLabel", {Text=dcfg.Name or "Dropdown", TextColor3=C.Label, Font=F.Med, TextSize=17, TextXAlignment=Enum.TextXAlignment.Left, ClipsDescendants=true, BackgroundTransparency=1, Size=UDim2.new(0.4,-4,0,closedH), Position=UDim2.fromOffset(8,0), Parent=frame})
-            local selLbl = mk("TextLabel", {Text=current.." \226\150\190", TextColor3=C.ValText, Font=F.Semi, TextSize=15, TextXAlignment=Enum.TextXAlignment.Right, TextTruncate=Enum.TextTruncate.AtEnd, ClipsDescendants=true, BackgroundTransparency=1, Size=UDim2.new(0.6,-18,0,closedH), Position=UDim2.new(0.4,4,0,0), Parent=frame})
+
+            local selected = {}
+
+            local function formatOption(opt)
+                if type(opt) == "table" then
+                    return opt.Name and tostring(opt.Name) or tostring(opt)
+                end
+                return tostring(opt)
+            end
+
+            local function buildSelectedList()
+                local list = {}
+                for _, opt in ipairs(options) do
+                    local sel = selected[tostring(opt)]
+                    if sel ~= nil then table.insert(list, sel) end
+                end
+                return list
+            end
+
+            local selLbl = mk("TextLabel", {Text="", TextColor3=C.ValText, Font=F.Semi, TextSize=15, TextXAlignment=Enum.TextXAlignment.Right, TextTruncate=Enum.TextTruncate.AtEnd, ClipsDescendants=true, BackgroundTransparency=1, Size=UDim2.new(0.6,-18,0,closedH), Position=UDim2.new(0.4,4,0,0), Parent=frame})
+
+            local function updateSelLabel()
+                local txt
+                if isMulti then
+                    local list = buildSelectedList()
+                    if #list > 0 then
+                        local textList = {}
+                        for _, v in ipairs(list) do table.insert(textList, formatOption(v)) end
+                        txt = table.concat(textList, ", ")
+                    else
+                        txt = "None"
+                    end
+                else
+                    txt = formatOption(buildSelectedList()[1] or "")
+                end
+                selLbl.Text = txt .. (isOpen and " \226\150\178" or " \226\150\190")
+            end
+
+            local function applySelection()
+                if isMulti then
+                    dropdown.Value = buildSelectedList()
+                else
+                    dropdown.Value = buildSelectedList()[1] or ""
+                end
+                if dcfg.Callback then pcall(dcfg.Callback, dropdown.Value) end
+                DebouncedSave()
+            end
+
+            local function updateAllOptionVisuals()
+                for _, child in ipairs(optC:GetChildren()) do
+                    if child:IsA("TextButton") and child._optionValue then
+                        child.BackgroundColor3 = selected[tostring(child._optionValue)] and C.AccentDk or C.Bg
+                    end
+                end
+            end
+
+            local function setSelected(val)
+                selected = {}
+                if isMulti then
+                    if type(val) == "table" then
+                        for _, v in ipairs(val) do
+                            selected[tostring(v)] = v
+                        end
+                    elseif val ~= nil then
+                        selected[tostring(val)] = val
+                    end
+                else
+                    if val ~= nil then
+                        selected[tostring(val)] = val
+                    end
+                end
+                updateSelLabel()
+                updateAllOptionVisuals()
+            end
 
             local toggleBtn2 = mk("TextButton", {Text="", BackgroundTransparency=1, Size=UDim2.new(1,0,0,closedH), ZIndex=2, AutoButtonColor=false, Parent=frame})
             local optC = mk("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,-6,0,#options*optH), Position=UDim2.new(0,3,0,closedH+2), Parent=frame})
             mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,1), Parent=optC})
 
-            local function setCurrent(val) current=val; dropdown.Value=val; selLbl.Text=val.." \226\150\190"; if dcfg.Callback then pcall(dcfg.Callback, val) end; DebouncedSave() end
-            function dropdown:Set(val) setCurrent(val) end
+            local function rebuildOptions()
+                for _, child in ipairs(optC:GetChildren()) do
+                    if child:IsA("TextButton") then child:Destroy() end
+                end
 
-            for i, opt in ipairs(options) do
-                local ob = mk("TextButton", {Text="  "..opt, TextColor3=C.Text, Font=F.Reg, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundColor3=C.Bg, Size=UDim2.new(1,0,0,optH), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=i, Parent=optC})
-                rc(ob, CORNER.Small)
-                ob.MouseButton1Click:Connect(function() setCurrent(opt); isOpen=false; tw(frame,{Size=UDim2.new(1,0,0,closedH)},0.15) end)
-                ob.MouseEnter:Connect(function() tw(ob,{BackgroundColor3=C.Hover},0.06) end)
-                ob.MouseLeave:Connect(function() tw(ob,{BackgroundColor3=C.Bg},0.06) end)
+                for i, opt in ipairs(options) do
+                    local ob = mk("TextButton", {Text="  "..formatOption(opt), TextColor3=C.Text, Font=F.Reg, TextSize=13, TextXAlignment=Enum.TextXAlignment.Left, BackgroundColor3=C.Bg, Size=UDim2.new(1,0,0,optH), BorderSizePixel=0, AutoButtonColor=false, LayoutOrder=i, Parent=optC})
+                    ob._optionValue = opt
+                    rc(ob, CORNER.Small)
+
+                    local function updateOptionVisual()
+                        ob.BackgroundColor3 = selected[tostring(opt)] and C.AccentDk or C.Bg
+                    end
+                    updateOptionVisual()
+
+                    ob.MouseButton1Click:Connect(function()
+                        if isMulti then
+                            selected[tostring(opt)] = not selected[tostring(opt)]
+                            updateOptionVisual()
+                            applySelection()
+                        else
+                            setSelected(opt)
+                            applySelection()
+                            isOpen = false
+                            tw(frame, {Size = UDim2.new(1,0,0,closedH)}, 0.15)
+                        end
+                    end)
+                    ob.MouseEnter:Connect(function() tw(ob,{BackgroundColor3=C.Hover},0.06) end)
+                    ob.MouseLeave:Connect(function() tw(ob,{BackgroundColor3=C.Bg},0.06) end)
+                end
+                optC.Size = UDim2.new(1,-6,0,#options*(optH+1))
             end
+
+            function dropdown:Set(val)
+                setSelected(val)
+                applySelection()
+            end
+
+            function dropdown:SetValue(val)
+                dropdown:Set(val)
+            end
+
+            function dropdown:SetOptions(newOptions)
+                options = newOptions or {}
+                rebuildOptions()
+                if isMulti then
+                    -- keep any selections that still exist in the new option list
+                    local keep = {}
+                    for _, v in ipairs(buildSelectedList()) do
+                        for _, o in ipairs(options) do
+                            if o == v then
+                                table.insert(keep, v)
+                                break
+                            end
+                        end
+                    end
+                    setSelected(keep)
+                else
+                    setSelected(options[1] or "")
+                end
+                applySelection()
+            end
+
+            rebuildOptions()
+            setSelected(current)
+            applySelection()
+
             toggleBtn2.MouseButton1Click:Connect(function()
-                isOpen=not isOpen; local openH=closedH+4+#options*(optH+1)
-                tw(frame,{Size=UDim2.new(1,0,0,isOpen and openH or closedH)},0.18)
-                selLbl.Text=current..(isOpen and " \226\150\178" or " \226\150\190")
+                isOpen = not isOpen; local openH = closedH + 4 + #options * (optH + 1)
+                tw(frame, {Size = UDim2.new(1,0,0, isOpen and openH or closedH)}, 0.18)
+                updateSelLabel()
             end)
-            if dcfg.Flag then Flags[dcfg.Flag]={get=function() return current end, set=function(v) dropdown:Set(tostring(v)) end} end
+
+            if dcfg.Flag then
+                Flags[dcfg.Flag] = {
+                    get = function() return dropdown.Value end,
+                    set = function(v) dropdown:Set(v) end
+                }
+            end
+
             return dropdown
         end
 
