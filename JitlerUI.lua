@@ -793,7 +793,12 @@ function Library:CreateWindow(cfg)
 
                     ob.MouseButton1Click:Connect(function()
                         if isMulti then
-                            selected[tostring(opt)] = not selected[tostring(opt)]
+                            local key = tostring(opt)
+                            if selected[key] then
+                                selected[key] = nil
+                            else
+                                selected[key] = opt
+                            end
                             updateOptionVisual()
                             applySelection()
                         else
@@ -804,7 +809,7 @@ function Library:CreateWindow(cfg)
                         end
                     end)
                     ob.MouseEnter:Connect(function() tw(ob,{BackgroundColor3=C.Hover},0.06) end)
-                    ob.MouseLeave:Connect(function() tw(ob,{BackgroundColor3=C.Bg},0.06) end)
+                    ob.MouseLeave:Connect(function() tw(ob,{BackgroundColor3=selected[tostring(opt)] and C.AccentDk or C.Bg},0.06) end)
                 end
                 optC.Size = UDim2.new(1,-6,0,#options*(optH+1))
             end
