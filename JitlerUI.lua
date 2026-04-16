@@ -1026,19 +1026,17 @@ function Library:CreateWindow(cfg)
 
     -- ==================== SETTINGS TAB ====================
     if cfgEnabled then
-        -- Add settings section header
-        _sidebarOrder = _sidebarOrder + 1
+        -- Add settings section header (high LayoutOrder so it's always last)
         local settingsSectionLbl = mk("TextLabel", {
             Text = "SETTINGS", TextColor3 = C.SectionDim,
             Font = F.Semi, TextSize = 10, TextXAlignment = Enum.TextXAlignment.Left,
             BackgroundTransparency = 1, Size = UDim2.new(1, -8, 0, 22),
-            LayoutOrder = _sidebarOrder, Parent = sidebarScroll,
+            LayoutOrder = 9998, Parent = sidebarScroll,
         })
         pad(settingsSectionLbl, 6, 0, 0, 8)
 
-        _sidebarOrder = _sidebarOrder + 1
         local settingsIcon = cfg.SettingsIcon or ""
-        local sBtn, sIndicator, sIconLabel, sNameLabel = createTabButton("Settings", settingsIcon, false, sidebarScroll, _sidebarOrder)
+        local sBtn, sIndicator, sIconLabel, sNameLabel = createTabButton("Settings", settingsIcon, false, sidebarScroll, 9999)
 
         local settingsContent = mk("ScrollingFrame", {Name="Settings", BackgroundTransparency=1, Size=UDim2.new(1,-12,1,-6), Position=UDim2.fromOffset(6,3), ScrollBarThickness=3, ScrollBarImageColor3=C.AccentDk, CanvasSize=UDim2.new(0,0,0,0), BorderSizePixel=0, Visible=false, Parent=contentArea})
         local sLayout = mk("UIListLayout", {SortOrder=Enum.SortOrder.LayoutOrder, Padding=UDim.new(0,3), Parent=settingsContent})
